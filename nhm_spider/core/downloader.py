@@ -23,7 +23,6 @@ class Downloader:
             # print("Ending request")
             pass
 
-        # todo: 应使用spider.settings获取配置
         self.__headers = self.spider.settings.get("DEFAULT_REQUEST_HEADER", {})
         request_timeout = self.spider.settings.get("REQUEST_TIMEOUT", 180)
         self.__timeout = ClientTimeout(total=request_timeout)

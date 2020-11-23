@@ -189,7 +189,7 @@ class Scheduler:
             self.request_count += 1
 
     async def download_request(self, request, downloader):
-        # todo: process_request
+        # process_request
         for middleware in self.enabled_download_middleware:
             # 确认是否使用的异步的middleware
             if isinstance(middleware, AsyncDownloadMiddleware):
