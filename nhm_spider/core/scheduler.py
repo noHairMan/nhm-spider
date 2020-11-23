@@ -174,7 +174,6 @@ class Scheduler:
                 # 失败的请求也要调用task_done，否则无法结束。
                 self.request_queue.task_done()
                 self.request_count += 1
-                self.logger.error(response)
                 continue
             else:
                 if self.spider.settings["DEBUG"] is True:
