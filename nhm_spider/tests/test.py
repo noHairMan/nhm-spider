@@ -8,6 +8,7 @@ from nhm_spider.spider.base import Spider
 
 class MpSpider(Spider):
     custom_settings = {
+        "CLEAR_COOKIE": False,
         "CONCURRENT_REQUESTS": 4,
         "DEFAULT_REQUEST_HEADER": {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '

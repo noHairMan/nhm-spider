@@ -10,6 +10,9 @@ class Downloader:
         self.logger = get_logger(self.__class__.__name__)
         self.session = None
         self.spider = spider
+        self.__headers = None
+        self.__timeout = None
+        self.__clear_cookie = None
 
     async def init(self):
         async def on_request_start(session, trace_config_ctx, params):
@@ -21,27 +24,23 @@ class Downloader:
             pass
 
         # todo: 应使用spider.settings获取配置
-        settings = self.spider.settings
-        headers = settings.get("DEFAULT_REQUEST_HEADER", {})
-        request_timeout = settings.get("REQUEST_TIMEOUT", 180)
-        timeout = ClientTimeout(total=request_timeout)
+        self.__headers = self.spider.settings.get("DEFAULT_REQUEST_HEADER", {})
+        request_timeout = self.spider.settings.get("REQUEST_TIMEOUT", 180)
+        self.__timeout = ClientTimeout(total=request_timeout)
+        self.__clear_cookie = self.spider.settings.get("CLEAR_COOKIE", False)
 
         trace_config = aiohttp.TraceConfig()
         trace_config.on_request_start.append(on_request_start)
         trace_config.on_request_end.append(on_request_end)
 
-        self.session = aiohttp.ClientSession(headers=headers, timeout=timeout, trace_configs=[trace_config])
+        self.session = aiohttp.ClientSession(headers=self.__headers, timeout=self.__timeout,
+                                             trace_configs=[trace_config])
 
     async def send_request(self, request):
         try:
-            if request.method.lower() == "get":
-                response = await self.session.get(request.url, data=request.body, headers=request.headers,
-                                                  cookies=request.cookies, proxy=request.proxy)
-            elif request.method.lower() == "post":
-                response = await self.session.post(request.url, data=request.form, headers=request.headers,
-                                                   cookies=request.cookies, proxy=request.proxy)
-            else:
-                self.logger.error("传入不支持的方法。")
+            self.session.cookie_jar.clear()
+            response = await self.send(self.session, request)
+            if response is None:
                 return
             # 获取完text之后，会自动关闭response。
             text = await response.text()  # TimeoutError
@@ -49,3 +48,16 @@ class Downloader:
             return exception
         my_response = Response(request.url, request, text, response, response.status, response.headers)
         return my_response
+
+    async def send(self, session, request):
+        """ 处理不同method的请求参数 """
+        if request.method.lower() == "get":
+            response = await session.get(request.url, data=request.body, headers=request.headers,
+                                         cookies=request.cookies, proxy=request.proxy)
+        elif request.method.lower() == "post":
+            response = await session.post(request.url, data=request.form, headers=request.headers,
+                                          cookies=request.cookies, proxy=request.proxy)
+        else:
+            self.logger.error("传入不支持的方法。")
+            response = None
+        return response
