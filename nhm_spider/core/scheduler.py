@@ -138,8 +138,8 @@ class Scheduler:
             elif asyncio.coroutines.iscoroutine(results):
                 await results
             else:
-                # todo:
-                raise NotImplementedError("未处理的spider返回类型。")
+                # todo: 考虑如何处理
+                self.logger.error(f"丢弃该任务，未处理的处理结果类型：{results}。")
 
     async def process_result_single(self, obj):
         if isinstance(obj, Request):
