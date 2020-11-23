@@ -34,7 +34,9 @@ class MpSpider(Spider):
         self.page_url = "http://www.mp.cc/search/{}"
 
     async def start_request(self):
-        request = Request(self.start_url, self.parse)
+        request = Request(self.start_url, self.parse,
+                          # proxy="http://127.0.0.1:8888"
+                          )
         yield request
 
     def parse(self, response):

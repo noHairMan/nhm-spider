@@ -23,7 +23,4 @@ class TimeoutDownloadMiddleware(DownloadMiddleware):
             else:
                 self.logger.warning(f"{request} exception error, retry {self.max_retry_times} times error.")
                 return None
-        else:
-            # 打印异常
-            print_exc()
         return exception

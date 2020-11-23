@@ -35,13 +35,15 @@ class Downloader:
     async def send_request(self, request):
         try:
             if request.method.lower() == "get":
-                response = await self.session.get(request.url, headers=request.headers, cookies=request.cookies)
+                response = await self.session.get(request.url, data=request.body, headers=request.headers,
+                                                  cookies=request.cookies, proxy=request.proxy)
             elif request.method.lower() == "post":
                 response = await self.session.post(request.url, data=request.form, headers=request.headers,
-                                                   cookies=request.cookies)
+                                                   cookies=request.cookies, proxy=request.proxy)
             else:
                 self.logger.error("传入不支持的方法。")
                 return
+            # 获取完text之后，会自动关闭response。
             text = await response.text()  # TimeoutError
         except Exception as exception:
             return exception

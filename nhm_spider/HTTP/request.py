@@ -1,12 +1,13 @@
 class Request:
     def __init__(self, url=None, callback=None, errback=None, form=None, headers=None, cookies=None,
-                 method="get", meta=None, dont_filter=False, priority=None, *args, **kwargs):
+                 method="get", meta=None, dont_filter=False, priority=None, proxy=None, *args, **kwargs):
         self.method: str = method
         self.url: str = url
         self.callback: callable = callback
         self.errback: callable = errback
         self.headers: dict = headers
         self.cookies: dict = cookies
+        self.proxy: dict = proxy
         self.form: dict = form
         self.meta: dict = meta or {}
         self.dont_filter: bool = dont_filter
@@ -15,7 +16,7 @@ class Request:
 
         # 创建body，供指纹使用
         if method.lower() == "get":
-            self.body = url.split("?", 1)[-1].encode() if "?" in url else b""
+            self.body = url.split("?", 1)[-1] if "?" in url else ""
         elif method.lower() == "post":
             self.body = "&".join(map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0]))).encode()
 
@@ -33,7 +34,7 @@ class Request:
 
 class FormRequest(Request):
     def __init__(self, url=None, callback=None, errback=None, form=None, headers=None, cookies=None, meta=None,
-                 dont_filter=False, *args, **kwargs):
+                 dont_filter=False, priority=None, proxy=None, *args, **kwargs):
         self.method = "post"
         super(FormRequest, self).__init__(url, callback, errback, form, headers, cookies, self.method, meta,
-                                          dont_filter, *args, **kwargs)
+                                          dont_filter, priority, proxy, *args, **kwargs)
