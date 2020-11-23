@@ -22,7 +22,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='nhm_spider',
-    version='1.16',
+    version='1.17',
     author='noHairMan',
     author_email='zongxuheng@163.com',
     description='base on asyncio, spider module like scrapy.',

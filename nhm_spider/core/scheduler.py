@@ -1,5 +1,4 @@
 import asyncio
-from traceback import format_exc, format_exception
 from types import GeneratorType, AsyncGeneratorType
 
 from scrapy.utils.request import request_fingerprint
@@ -134,6 +133,8 @@ class Scheduler:
             elif isinstance(results, AsyncGeneratorType):
                 async for obj in results:
                     await self.process_result_single(obj)
+            elif isinstance(results, Request):
+                await self.process_result_single(results)
             elif asyncio.coroutines.iscoroutine(results):
                 await results
             else:
@@ -212,7 +213,7 @@ class Scheduler:
                     raise TypeError("未知的中间件类型")
 
                 if isinstance(result, Request):
-                    return await self.process_results([result])
+                    return await self.process_results(result)
                     # return await self.download_request(request, downloader)
                 else:
                     response = result
@@ -227,7 +228,7 @@ class Scheduler:
                     raise TypeError("未知的中间件类型")
 
                 if isinstance(result, Request):
-                    return await self.process_results([result])
+                    return await self.process_results(result)
                     # return await self.download_request(request, downloader)
                 else:
                     response = result
