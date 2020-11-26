@@ -126,33 +126,42 @@ class Scheduler:
 
             await asyncio.sleep(heartbeat_interval)
 
-    async def process_results(self, results):
+    async def process_results(self, results, response=None):
         if results:
             if isinstance(results, GeneratorType):
                 for obj in results:
-                    await self.process_result_single(obj)
+                    await self.process_result_single(obj, response)
             elif isinstance(results, AsyncGeneratorType):
                 async for obj in results:
-                    await self.process_result_single(obj)
+                    await self.process_result_single(obj, response)
             elif isinstance(results, Request):
-                await self.process_result_single(results)
+                await self.process_result_single(results, response)
             elif asyncio.coroutines.iscoroutine(results):
                 await results
             else:
                 # todo: 考虑如何处理
                 self.logger.error(f"丢弃该任务，未处理的处理结果类型：{results}。")
 
-    async def process_result_single(self, obj):
+    async def process_result_single(self, obj, response):
         if isinstance(obj, Request):
+            # 处理request对象优先级，深度优先
+            if obj.priority is None:
+                if response is not None:
+                    obj.priority = response.request.priority - 1
+                else:
+                    obj.priority = 0
+
             fp = request_fingerprint(obj)
             # 根据指纹去重。
             if obj.dont_filter is True or fp not in self.dupe_memory_queue:
                 obj.fp = fp
                 await self.enqueue_request(obj)
                 self.dupe_memory_queue.add(fp)
+
         elif isinstance(obj, Item):
             if not self.enabled_pipeline and self.spider.DEBUG is True:
                 self.logger.info(pformat(obj))
+            self.item_count += 1
 
             for pipeline in self.enabled_pipeline:
                 # 确认是否使用的异步的pipeline
@@ -160,7 +169,7 @@ class Scheduler:
                     obj = await pipeline.process_item(obj, self.spider)
                 elif isinstance(pipeline, Pipeline):
                     obj = pipeline.process_item(obj, self.spider)
-            self.item_count += 1
+
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
 
@@ -188,7 +197,7 @@ class Scheduler:
             new_results = request.callback(response)
             # todo: process_spider_out
 
-            await self.process_results(new_results)
+            await self.process_results(new_results, response)
             self.request_queue.task_done()
             self.request_count += 1
 
