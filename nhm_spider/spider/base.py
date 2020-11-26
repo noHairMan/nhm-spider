@@ -24,6 +24,7 @@ class Spider:
     def _set_spider(self):
         # todo: 需合并default_settings文件里的设置
         self.settings = self.custom_settings
+        self.DEBUG = self.settings["DEBUG"]
 
     async def custom_init(self):
         pass

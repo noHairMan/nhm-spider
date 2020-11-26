@@ -1,4 +1,5 @@
 import asyncio
+from pprint import pformat
 from types import GeneratorType, AsyncGeneratorType
 
 from scrapy.utils.request import request_fingerprint
@@ -76,11 +77,11 @@ class Scheduler:
             results = spider.start_request()
             await self.process_results(results)
             for task_number in range(self.concurrent_requests):
-                task = asyncio.ensure_future(self.process(downloader))
+                task = asyncio.create_task(self.process(downloader))
                 tasks.append(task)
 
             # 阻塞并等待所有任务完成
-            tasks.append(asyncio.ensure_future(self.heartbeat()))
+            tasks.append(asyncio.create_task(self.heartbeat()))
             await self.request_queue.join()
 
         finally:
@@ -150,13 +151,16 @@ class Scheduler:
                 await self.enqueue_request(obj)
                 self.dupe_memory_queue.add(fp)
         elif isinstance(obj, Item):
+            if not self.enabled_pipeline and self.spider.DEBUG is True:
+                self.logger.info(pformat(obj))
+
             for pipeline in self.enabled_pipeline:
                 # 确认是否使用的异步的pipeline
                 if isinstance(pipeline, AsyncPipeline):
                     obj = await pipeline.process_item(obj, self.spider)
                 elif isinstance(pipeline, Pipeline):
                     obj = pipeline.process_item(obj, self.spider)
-                self.item_count += 1
+            self.item_count += 1
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
 
@@ -177,7 +181,7 @@ class Scheduler:
                 self.request_count += 1
                 continue
             else:
-                if self.spider.settings["DEBUG"] is True:
+                if self.spider.DEBUG is True:
                     self.logger.info(f"Crawled ({response.status}) {response}.")
 
             # todo: process_spider_in
