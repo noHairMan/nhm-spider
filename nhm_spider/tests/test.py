@@ -8,7 +8,7 @@ from nhm_spider.spider.base import Spider
 
 class MpSpider(Spider):
     custom_settings = {
-        "USE_SESSION": False,
+        "USE_SESSION": True,
         "CLEAR_COOKIE": False,
         "CONCURRENT_REQUESTS": 4,
         "DEFAULT_REQUEST_HEADER": {

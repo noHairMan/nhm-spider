@@ -150,7 +150,6 @@ class Scheduler:
                 await self.enqueue_request(obj)
                 self.dupe_memory_queue.add(fp)
         elif isinstance(obj, Item):
-            # todo: 使用pipeline处理结果
             for pipeline in self.enabled_pipeline:
                 # 确认是否使用的异步的pipeline
                 if isinstance(pipeline, AsyncPipeline):
@@ -171,6 +170,8 @@ class Scheduler:
 
             response = await self.download_request(request, downloader)
             if not isinstance(response, Response):
+                # todo: 待处理非response的情况
+
                 # 失败的请求也要调用task_done，否则无法结束。
                 self.request_queue.task_done()
                 self.request_count += 1
@@ -192,13 +193,32 @@ class Scheduler:
         for middleware in self.enabled_download_middleware:
             # 确认是否使用的异步的middleware
             if isinstance(middleware, AsyncDownloadMiddleware):
-                await middleware.process_request(request, self.spider)
+                result = await middleware.process_request(request, self.spider)
             elif isinstance(middleware, DownloadMiddleware):
-                middleware.process_request(request, self.spider)
+                result = middleware.process_request(request, self.spider)
             else:
+                self.logger.error(f"未知的中间件类型，{middleware}。")
                 raise TypeError("未知的中间件类型")
 
-        response = await downloader.send_request(request)
+            if result is None:
+                pass
+            elif isinstance(result, Request):
+                return await self.process_results(result)
+            elif isinstance(result, Response):
+                # 返回response则直接跳过process_request
+                request = result
+                break
+            else:
+                self.logger.error(f"未知的对象类型，{request}。")
+                raise TypeError("未知的对象类型")
+
+        if isinstance(request, Request):
+            response = await downloader.send_request(request)
+        elif isinstance(request, Response):
+            response = request
+        else:
+            self.logger.error(f"未知的对象类型，{request}。")
+            raise TypeError("未知的对象类型")
 
         # process_response
         if isinstance(response, Response):
@@ -209,13 +229,16 @@ class Scheduler:
                 elif isinstance(middleware, DownloadMiddleware):
                     result = middleware.process_response(request, response, self.spider)
                 else:
+                    self.logger.error(f"未知的中间件类型，{middleware}。")
                     raise TypeError("未知的中间件类型")
 
-                if isinstance(result, Request):
+                if result is None:
+                    pass
+                elif isinstance(result, Request):
                     return await self.process_results(result)
-                    # return await self.download_request(request, downloader)
-                else:
+                elif isinstance(result, Response):
                     response = result
+                    break
         elif isinstance(response, Exception):
             for middleware in self.enabled_download_middleware:
                 # 确认是否使用的异步的middleware
@@ -226,12 +249,16 @@ class Scheduler:
                 else:
                     raise TypeError("未知的中间件类型")
 
-                if isinstance(result, Request):
+                if result is None:
+                    pass
+                elif isinstance(result, Request):
                     return await self.process_results(result)
-                    # return await self.download_request(request, downloader)
-                else:
+                elif isinstance(result, Response):
                     response = result
-        elif response is None:
-            pass
+                    break
+
+        else:
+            self.logger.error(f"未知的Response类型，{response}。")
+            raise TypeError("未知的Response类型")
 
         return response
