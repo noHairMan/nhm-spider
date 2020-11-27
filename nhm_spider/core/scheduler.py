@@ -1,5 +1,6 @@
 import asyncio
 from pprint import pformat
+from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
 
 from scrapy.utils.request import request_fingerprint
@@ -194,12 +195,15 @@ class Scheduler:
                     self.logger.info(f"Crawled ({response.status}) {response}.")
 
             # todo: process_spider_in
-            new_results = request.callback(response)
-            # todo: process_spider_out
-
-            await self.process_results(new_results, response)
-            self.request_queue.task_done()
-            self.request_count += 1
+            results = request.callback(response)
+            # todo: process_spider_out 非此位置
+            try:
+                await self.process_results(results, response)
+            except:
+                self.logger.error(format_exc())
+            finally:
+                self.request_queue.task_done()
+                self.request_count += 1
 
     async def download_request(self, request, downloader):
         # process_request
