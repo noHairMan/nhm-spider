@@ -12,7 +12,7 @@ class Request:
         self.meta: dict = meta or {}
         self.dont_filter: bool = dont_filter
         # 优先级，越小越先请求
-        self.priority: int = -(priority or 0)
+        self.priority: int = priority if priority is None else -priority
 
         # 创建body，供指纹使用
         if method.lower() == "get":

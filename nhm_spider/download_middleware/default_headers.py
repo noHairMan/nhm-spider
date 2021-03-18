@@ -1,7 +1,4 @@
-from nhm_spider.download_middleware.base import DownloadMiddleware
-
-
-class DefaultRequestHeadersDownloadMiddleware(DownloadMiddleware):
+class DefaultRequestHeadersDownloadMiddleware:
     def __init__(self):
         self.default_headers = None
 

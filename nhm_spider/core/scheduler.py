@@ -1,15 +1,15 @@
 import asyncio
 from pprint import pformat
+from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
+from inspect import isawaitable, iscoroutine
 
 from scrapy.utils.request import request_fingerprint
 
 from nhm_spider.HTTP.request import Request
 from nhm_spider.HTTP.response import Response
 from nhm_spider.common.log import get_logger
-from nhm_spider.download_middleware.base import AsyncDownloadMiddleware, DownloadMiddleware
 from nhm_spider.item.base import Item
-from nhm_spider.pipeline.base import AsyncPipeline, Pipeline
 from nhm_spider.utils.pqueue import SpiderPriorityQueue
 from nhm_spider.utils.signal import SignalManager
 
@@ -59,17 +59,20 @@ class Scheduler:
         # init pipeline
         for pipeline in self.enabled_pipeline:
             # 确认是否使用的异步的pipeline
-            if isinstance(pipeline, AsyncPipeline):
-                await pipeline.open_spider(spider)
-            elif isinstance(pipeline, Pipeline):
-                pipeline.open_spider(spider)
+            if not hasattr(pipeline, "open_spider"):
+                continue
+            pip = pipeline.open_spider(spider)
+            if isawaitable(pip):
+                await pip
+
         # init download middleware
         for middleware in self.enabled_download_middleware:
             # 确认是否使用的异步的middleware
-            if isinstance(middleware, AsyncDownloadMiddleware):
-                await middleware.open_spider(spider)
-            elif isinstance(middleware, DownloadMiddleware):
-                middleware.open_spider(spider)
+            if not hasattr(middleware, "open_spider"):
+                continue
+            mid = middleware.open_spider(spider)
+            if isawaitable(mid):
+                await mid
 
         tasks = self.tasks
         try:
@@ -88,18 +91,20 @@ class Scheduler:
             # clear pipeline
             for pipeline in self.enabled_pipeline:
                 # 确认是否使用的异步的pipeline
-                if isinstance(pipeline, AsyncPipeline):
-                    await pipeline.close_spider(spider)
-                elif isinstance(pipeline, Pipeline):
-                    pipeline.close_spider(spider)
+                if not hasattr(pipeline, "close_spider"):
+                    continue
+                pip = pipeline.close_spider(spider)
+                if isawaitable(pip):
+                    await pip
 
             # clear download middleware
             for middleware in self.enabled_download_middleware:
                 # 确认是否使用的异步的middleware
-                if isinstance(middleware, AsyncDownloadMiddleware):
-                    await middleware.close_spider(spider)
-                elif isinstance(middleware, DownloadMiddleware):
-                    middleware.close_spider(spider)
+                if not hasattr(middleware, "close_spider"):
+                    continue
+                mid = middleware.close_spider(spider)
+                if isawaitable(mid):
+                    await mid
 
             await downloader.session.close()
             # 所有task完成后，取消任务，退出程序
@@ -126,41 +131,51 @@ class Scheduler:
 
             await asyncio.sleep(heartbeat_interval)
 
-    async def process_results(self, results):
+    async def process_results(self, results, response=None):
         if results:
             if isinstance(results, GeneratorType):
                 for obj in results:
-                    await self.process_result_single(obj)
+                    await self.process_result_single(obj, response)
             elif isinstance(results, AsyncGeneratorType):
                 async for obj in results:
-                    await self.process_result_single(obj)
+                    await self.process_result_single(obj, response)
             elif isinstance(results, Request):
-                await self.process_result_single(results)
-            elif asyncio.coroutines.iscoroutine(results):
+                await self.process_result_single(results, response)
+            elif iscoroutine(results):
                 await results
             else:
                 # todo: 考虑如何处理
                 self.logger.error(f"丢弃该任务，未处理的处理结果类型：{results}。")
 
-    async def process_result_single(self, obj):
+    async def process_result_single(self, obj, response):
         if isinstance(obj, Request):
+            # 处理request对象优先级，深度优先
+            if obj.priority is None:
+                if response is not None:
+                    obj.priority = response.request.priority - 1
+                else:
+                    obj.priority = 0
+
             fp = request_fingerprint(obj)
             # 根据指纹去重。
             if obj.dont_filter is True or fp not in self.dupe_memory_queue:
                 obj.fp = fp
                 await self.enqueue_request(obj)
                 self.dupe_memory_queue.add(fp)
+
         elif isinstance(obj, Item):
             if not self.enabled_pipeline and self.spider.DEBUG is True:
                 self.logger.info(pformat(obj))
+            self.item_count += 1
 
             for pipeline in self.enabled_pipeline:
                 # 确认是否使用的异步的pipeline
-                if isinstance(pipeline, AsyncPipeline):
-                    obj = await pipeline.process_item(obj, self.spider)
-                elif isinstance(pipeline, Pipeline):
-                    obj = pipeline.process_item(obj, self.spider)
-            self.item_count += 1
+                if not hasattr(pipeline, "process_item"):
+                    continue
+                obj = pipeline.process_item(obj, self.spider)
+                if isawaitable(obj):
+                    obj = await obj
+
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
 
@@ -185,24 +200,25 @@ class Scheduler:
                     self.logger.info(f"Crawled ({response.status}) {response}.")
 
             # todo: process_spider_in
-            new_results = request.callback(response)
-            # todo: process_spider_out
-
-            await self.process_results(new_results)
-            self.request_queue.task_done()
-            self.request_count += 1
+            results = request.callback(response)
+            # todo: process_spider_out 非此位置
+            try:
+                await self.process_results(results, response)
+            except:
+                self.logger.error(format_exc())
+            finally:
+                self.request_queue.task_done()
+                self.request_count += 1
 
     async def download_request(self, request, downloader):
         # process_request
         for middleware in self.enabled_download_middleware:
             # 确认是否使用的异步的middleware
-            if isinstance(middleware, AsyncDownloadMiddleware):
-                result = await middleware.process_request(request, self.spider)
-            elif isinstance(middleware, DownloadMiddleware):
-                result = middleware.process_request(request, self.spider)
-            else:
-                self.logger.error(f"未知的中间件类型，{middleware}。")
-                raise TypeError("未知的中间件类型")
+            if not hasattr(middleware, "process_request"):
+                continue
+            result = middleware.process_request(request, self.spider)
+            if isawaitable(result):
+                result = await result
 
             if result is None:
                 pass
@@ -228,13 +244,11 @@ class Scheduler:
         if isinstance(response, Response):
             for middleware in self.enabled_download_middleware:
                 # 确认是否使用的异步的middleware
-                if isinstance(middleware, AsyncDownloadMiddleware):
-                    result = await middleware.process_response(request, response, self.spider)
-                elif isinstance(middleware, DownloadMiddleware):
-                    result = middleware.process_response(request, response, self.spider)
-                else:
-                    self.logger.error(f"未知的中间件类型，{middleware}。")
-                    raise TypeError("未知的中间件类型")
+                if not hasattr(middleware, "process_response"):
+                    continue
+                result = middleware.process_response(request, response, self.spider)
+                if isawaitable(result):
+                    result = await result
 
                 if result is None:
                     pass
@@ -246,12 +260,11 @@ class Scheduler:
         elif isinstance(response, Exception):
             for middleware in self.enabled_download_middleware:
                 # 确认是否使用的异步的middleware
-                if isinstance(middleware, AsyncDownloadMiddleware):
-                    result = await middleware.process_exception(request, response, self.spider)
-                elif isinstance(middleware, DownloadMiddleware):
-                    result = middleware.process_exception(request, response, self.spider)
-                else:
-                    raise TypeError("未知的中间件类型")
+                if not hasattr(middleware, "process_exception"):
+                    continue
+                result = middleware.process_exception(request, response, self.spider)
+                if isawaitable(result):
+                    result = await result
 
                 if result is None:
                     pass

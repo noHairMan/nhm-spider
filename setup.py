@@ -22,9 +22,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='nhm_spider',
-    version='1.18',
+    version='1.22',
     author='noHairMan',
     author_email='zongxuheng@163.com',
+    url="https://github.com/noHairMan/nhm-spider",
     description='base on asyncio, spider module like scrapy.',
     long_description=long_description,  # 这里是文档内容, 读取readme文件
     long_description_content_type='text/markdown',  # 文档格式
