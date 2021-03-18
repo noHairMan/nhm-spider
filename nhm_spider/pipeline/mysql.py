@@ -1,20 +1,20 @@
 import aiomysql
 
 from nhm_spider.common.log import get_logger
-from nhm_spider.pipeline.base import AsyncPipeline
 
 
-class DeprecateTmPipeline(AsyncPipeline):
+class DeprecateTmPipeline:
+    pool: aiomysql.Pool
+
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
         self.mysql_param = {
             "host": "127.0.0.1",
             "port": 3306,
-            "db": "asset",
-            "user": "crawler",
-            "password": "Crawler2020!"
+            "db": "",
+            "user": "",
+            "password": ""
         }
-        self.pool: aiomysql.Pool = None
         self.count = 0
 
     async def open_spider(self, spider):

@@ -43,7 +43,7 @@ class MpSpider(Spider):
         yield request
 
     def parse(self, response):
-        page_info = response.xpath('//a[@class="number"][last()]/text()').get("")
+        page_info = response.xpath('//a[@class="number"][last()]/text()').get("0")
         total_page = int(page_info)
         for page in range(1, total_page + 1):
             request = Request(self.page_url.format(page), self.parse_page)
