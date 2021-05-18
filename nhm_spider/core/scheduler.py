@@ -6,8 +6,8 @@ from inspect import isawaitable, iscoroutine
 
 from scrapy.utils.request import request_fingerprint
 
-from nhm_spider.HTTP.request import Request
-from nhm_spider.HTTP.response import Response
+from nhm_spider.http.request import Request
+from nhm_spider.http.response import Response
 from nhm_spider.common.log import get_logger
 from nhm_spider.item.base import Item
 from nhm_spider.utils.pqueue import SpiderPriorityQueue

@@ -1,4 +1,4 @@
-from nhm_spider.HTTP.request import Request
+from nhm_spider.http.request import Request
 from nhm_spider.core.engine import Engine
 from nhm_spider.download_middleware.default_headers import DefaultRequestHeadersDownloadMiddleware
 from nhm_spider.download_middleware.retry import RetryDownloadMiddleware

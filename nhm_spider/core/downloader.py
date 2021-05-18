@@ -1,7 +1,7 @@
 import aiohttp
 from aiohttp import ClientTimeout
 
-from nhm_spider.HTTP.response import Response
+from nhm_spider.http.response import Response
 from nhm_spider.common.log import get_logger
 
 

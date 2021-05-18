@@ -1,4 +1,4 @@
-from nhm_spider.HTTP.request import Request
+from nhm_spider.http.request import Request
 from nhm_spider.common.log import get_logger
 
 
@@ -24,7 +24,7 @@ class Spider:
     def _set_spider(self):
         # todo: 需合并default_settings文件里的设置
         self.settings = self.custom_settings
-        self.DEBUG = self.settings["DEBUG"]
+        self.DEBUG = self.settings.get("DEBUG", True)
 
     async def custom_init(self):
         pass

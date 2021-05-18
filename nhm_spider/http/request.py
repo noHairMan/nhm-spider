@@ -19,6 +19,9 @@ class Request:
             self.body = url.split("?", 1)[-1] if "?" in url else ""
         elif method.lower() == "post":
             self.body = "&".join(map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0]))).encode()
+        else:
+            self.body = ""
+        self.body = self.body.encode()
 
     # 供优先级队列比较，比较的是Request.priority的大小
 
