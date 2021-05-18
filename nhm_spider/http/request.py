@@ -18,7 +18,7 @@ class Request:
         if method.lower() == "get":
             self.body = url.split("?", 1)[-1] if "?" in url else ""
         elif method.lower() == "post":
-            self.body = "&".join(map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0]))).encode()
+            self.body = "&".join(map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0])))
         else:
             self.body = ""
         self.body = self.body.encode()
