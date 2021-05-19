@@ -1,10 +1,11 @@
-from nhm_spider.http.request import Request
-from nhm_spider.core.engine import Engine
 from nhm_spider.download_middleware.default_headers import DefaultRequestHeadersDownloadMiddleware
 from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
 from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
-from nhm_spider.item.base import Item
-from nhm_spider.spider.base import Spider
+from nhm_spider import Item, Spider, Engine, Request, Field
+
+
+class MpItem(Item):
+    page = Field()
 
 
 class MpSpider(Spider):
@@ -51,7 +52,7 @@ class MpSpider(Spider):
             yield request
 
     def parse_page(self, response):
-        yield Item({"page": response.meta["page"]})
+        yield MpItem({"page": response.meta["page"]})
 
 
 if __name__ == '__main__':

@@ -6,12 +6,10 @@ from inspect import isawaitable, iscoroutine
 
 from scrapy.utils.request import request_fingerprint
 
-from nhm_spider.http.request import Request
-from nhm_spider.http.response import Response
 from nhm_spider.common.log import get_logger
-from nhm_spider.item.base import Item
 from nhm_spider.utils.pqueue import SpiderPriorityQueue
 from nhm_spider.utils.signal import SignalManager
+from nhm_spider import Item, Request, Response
 
 
 class Scheduler:
@@ -165,7 +163,7 @@ class Scheduler:
 
         elif isinstance(obj, Item):
             if not self.enabled_pipeline and self.spider.DEBUG is True:
-                self.logger.info(pformat(obj))
+                self.logger.info(obj)
             self.item_count += 1
 
             for pipeline in self.enabled_pipeline:

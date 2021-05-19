@@ -10,6 +10,8 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+# nhm custom
+from nhm_spider.settings.default_settings import VERSION
 
 here = path.abspath(path.dirname(__file__))
 
@@ -22,7 +24,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='nhm_spider',
-    version='1.23',
+    version=str(VERSION),
     author='noHairMan',
     author_email='zongxuheng@163.com',
     url="https://github.com/noHairMan/nhm-spider",

@@ -2,6 +2,7 @@ from nhm_spider.download_middleware.default_headers import DefaultRequestHeaders
 from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
 from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
 
+VERSION = 1.25
 # 请求队列的最大值，控制此值可控制内存使用
 REQUEST_QUEUE_MAX_SIZE = 1000
 # 是否使用session
@@ -13,7 +14,7 @@ CLEAR_COOKIE = False
 CONCURRENT_REQUESTS = 8
 # 默认请求头
 DEFAULT_REQUEST_HEADER = {
-    'User-Agent': 'nhm-spider/1.23'
+    'User-Agent': f'nhm-spider/{VERSION}'
 }
 # 是否开启调试日志
 DEBUG = True
