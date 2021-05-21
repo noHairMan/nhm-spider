@@ -1,3 +1,6 @@
+from nhm_spider.http.headers import Headers
+
+
 class Request:
     def __init__(self, url=None, callback=None, errback=None, form=None, headers=None, cookies=None,
                  method="get", meta=None, dont_filter=False, priority=None, proxy=None, *args, **kwargs):
@@ -5,7 +8,7 @@ class Request:
         self.url: str = url
         self.callback: callable = callback
         self.errback: callable = errback
-        self.headers: dict = headers
+        self.headers: Headers = Headers(headers)
         self.cookies: dict = cookies
         self.proxy: dict = proxy
         self.form: dict = form

@@ -1,5 +1,4 @@
 import asyncio
-from pprint import pformat
 from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
 from inspect import isawaitable, iscoroutine
@@ -9,7 +8,8 @@ from scrapy.utils.request import request_fingerprint
 from nhm_spider.common.log import get_logger
 from nhm_spider.utils.pqueue import SpiderPriorityQueue
 from nhm_spider.utils.signal import SignalManager
-from nhm_spider import Item, Request, Response
+from nhm_spider.item import Item
+from nhm_spider.http import Request, Response
 
 
 class Scheduler:
@@ -114,7 +114,7 @@ class Scheduler:
     async def heartbeat(self, heartbeat_interval=60):
         """
         todo: 统计采集的页数，抓取的条数。
-        todo: 考虑放到extensions中去
+              考虑放到extensions中去
         """
         last_item_count = 0
         last_request_count = 0

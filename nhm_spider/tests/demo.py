@@ -1,6 +1,3 @@
-from nhm_spider.download_middleware.default_headers import DefaultRequestHeadersDownloadMiddleware
-from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
-from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
 from nhm_spider import Item, Spider, Engine, Request, Field
 
 
@@ -17,19 +14,10 @@ class MpSpider(Spider):
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/83.0.4103.97 Safari/537.36',
         },
-        "DEBUG": True,
-        "DEBUG_LEVEL": "INFO",
-        "REQUEST_TIMEOUT": 30,
         "ENABLED_PIPELINE": [
             # TmPipeline,
             # TmQueryPipeline,
         ],
-        "ENABLED_DOWNLOAD_MIDDLEWARE": [
-            DefaultRequestHeadersDownloadMiddleware,
-            RetryDownloadMiddleware,
-            TimeoutDownloadMiddleware,
-        ],
-        "IGNORE_HTTP_ERROR": []
     }
 
     def __init__(self):
@@ -52,7 +40,8 @@ class MpSpider(Spider):
             yield request
 
     def parse_page(self, response):
-        yield MpItem({"page": response.meta["page"]})
+        item = MpItem({"page": response.meta["page"]})
+        yield item
 
 
 if __name__ == '__main__':
