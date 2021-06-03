@@ -34,6 +34,12 @@ class Spider:
     async def custom_init(self):
         pass
 
+    async def custom_close(self):
+        pass
+
+    async def custom_success_close(self):
+        pass
+
     def start_request(self):
         for url in self.start_urls:
             request = Request(url, callback=self.parse)

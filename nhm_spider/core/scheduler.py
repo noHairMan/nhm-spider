@@ -85,6 +85,11 @@ class Scheduler:
             tasks.append(asyncio.create_task(self.heartbeat()))
             await self.request_queue.join()
 
+            # 正常推出时执行的关闭
+            success_close_task = spider.custom_success_close()
+            if isawaitable(success_close_task):
+                await success_close_task
+
         finally:
             # clear pipeline
             for pipeline in self.enabled_pipeline:
@@ -110,6 +115,10 @@ class Scheduler:
                 task.cancel()
             # 等待task取消完成
             await asyncio.gather(*tasks, return_exceptions=True)
+
+            spider_close_task = spider.custom_close()
+            if isawaitable(spider_close_task):
+                await spider_close_task
 
     async def heartbeat(self, heartbeat_interval=60):
         """
