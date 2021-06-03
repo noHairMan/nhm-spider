@@ -35,3 +35,8 @@ ENABLED_DOWNLOAD_MIDDLEWARE = [
 ]
 # 忽略的状态码错误
 IGNORE_HTTP_ERROR = []
+# 是否循环执行爬虫
+RUN_FOREVER = False
+# 每次采集完等待间隔开始下一轮
+# 默认：1天
+RUN_LOOP_INTERVAL = 60 * 60 * 24

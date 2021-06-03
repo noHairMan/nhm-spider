@@ -18,6 +18,8 @@ class MpSpider(Spider):
             # TmPipeline,
             # TmQueryPipeline,
         ],
+        # "RUN_FOREVER": True,
+        # "RUN_LOOP_INTERVAL": 5,
     }
 
     def __init__(self):

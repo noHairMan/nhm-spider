@@ -23,6 +23,7 @@ class Scheduler:
         self.item_count = 0
         self.request_count = 0
         self.tasks = []
+        self.__opened = False
 
         settings = spider.settings
 
@@ -37,10 +38,18 @@ class Scheduler:
         # enabled_spider_middleware = settings.get("ENABLED_SPIDER_MIDDLEWARE", [])
         # self.enabled_spider_middleware = [cls() for cls in enabled_spider_middleware]
 
-    async def init(self):
+    async def open_scheduler(self):
         self.request_queue = SpiderPriorityQueue()
         self.signal_manager = SignalManager(self.request_queue)
         self.signal_manager.connect()
+        self.__opened = True
+
+    def close_scheduler(self):
+        self.__opened = False
+
+    @property
+    def is_opened(self):
+        return self.__opened
 
     async def next_request(self):
         request = await self.request_queue.get()
@@ -50,8 +59,16 @@ class Scheduler:
         """
         协程主程序
         """
-        await self.init()
-        await downloader.init()
+        # todo: 应打印初始化了哪些模块。
+
+        # todo: 应尝试减少某些模块的初始化次数
+        # if self.is_opened is False:
+        #     # scheduler.init
+        #     await self.open_scheduler()
+        # if downloader.is_opened is False:
+        #     await downloader.open_downloader()
+        await self.open_scheduler()
+        await downloader.open_downloader()
         await spider.custom_init()
 
         # init pipeline
@@ -119,6 +136,12 @@ class Scheduler:
             spider_close_task = spider.custom_close()
             if isawaitable(spider_close_task):
                 await spider_close_task
+
+            # 清理内存，消除对 RUN_FOREVER = True 时的影响
+            self.dupe_memory_queue.clear()
+            self.tasks.clear()
+
+            # todo: 应打印采集完成汇总的数据。
 
     async def heartbeat(self, heartbeat_interval=60):
         """

@@ -14,8 +14,9 @@ class Downloader:
         self.__timeout = None
         self.__clear_cookie = None
         self.__use_session = None
+        self.__opened = False
 
-    async def init(self):
+    async def open_downloader(self):
         async def on_request_start(session, trace_config_ctx, params):
             # print("Starting request")
             pass
@@ -36,6 +37,14 @@ class Downloader:
 
         self.session = aiohttp.ClientSession(headers=self.__headers, timeout=self.__timeout,
                                              trace_configs=[trace_config])
+        self.__opened = True
+
+    def close_downloader(self):
+        self.__opened = False
+
+    @property
+    def is_opened(self):
+        return self.__opened
 
     async def send_request(self, request):
         try:
