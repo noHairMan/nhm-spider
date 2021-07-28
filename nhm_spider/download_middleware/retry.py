@@ -10,7 +10,7 @@ class RetryDownloadMiddleware:
         self.ignore_http_error = None
 
     def open_spider(self, spider):
-        self.ignore_http_error = spider.settings.get("IGNORE_HTTP_ERROR", [])
+        self.ignore_http_error = spider.settings.get_dict("IGNORE_HTTP_ERROR")
 
     def process_response(self, request, response, spider):
         if request.meta.get('dont_retry', False):

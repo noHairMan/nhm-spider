@@ -18,7 +18,7 @@ class DeprecateTmPipeline:
         self.count = 0
 
     async def open_spider(self, spider):
-        max_size = spider.settings.get("CONCURRENT_REQUESTS")
+        max_size = spider.settings.get_int("CONCURRENT_REQUESTS")
         self.pool = await aiomysql.create_pool(maxsize=max_size, **self.mysql_param)
         self.logger.info(f"Connect to mysql server {self.pool}.")
 

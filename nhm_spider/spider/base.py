@@ -1,6 +1,7 @@
 from nhm_spider.http.request import Request
 from nhm_spider.common.log import get_logger
 from nhm_spider.utils.project import get_default_settings
+from nhm_spider.settings.settings_manager import SettingsManager
 
 
 class Spider:
@@ -28,8 +29,8 @@ class Spider:
         self.crawler = crawler
         # 获取 default_settings
         default_settings = get_default_settings()
-        self.settings = default_settings | self.custom_settings
-        self.DEBUG = self.settings.get("DEBUG")
+        self.settings = SettingsManager(default_settings) | self.custom_settings
+        self.DEBUG = self.settings.get_bool("DEBUG")
 
     async def custom_init(self):
         pass

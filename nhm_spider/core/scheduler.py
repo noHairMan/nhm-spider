@@ -28,14 +28,14 @@ class Scheduler:
         settings = spider.settings
 
         # pipeline
-        self.concurrent_requests = settings.get("CONCURRENT_REQUESTS", 8)
-        enabled_pipeline = settings.get("ENABLED_PIPELINE", [])
+        self.concurrent_requests = settings.get_int("CONCURRENT_REQUESTS", 8)
+        enabled_pipeline = settings.get_list("ENABLED_PIPELINE")
         self.enabled_pipeline = [cls() for cls in enabled_pipeline]
         # download middleware
-        enabled_download_middleware = settings.get("ENABLED_DOWNLOAD_MIDDLEWARE", [])
+        enabled_download_middleware = settings.get_list("ENABLED_DOWNLOAD_MIDDLEWARE")
         self.enabled_download_middleware = [cls() for cls in enabled_download_middleware]
         # spider middleware
-        # enabled_spider_middleware = settings.get("ENABLED_SPIDER_MIDDLEWARE", [])
+        # enabled_spider_middleware = settings.get_list("ENABLED_SPIDER_MIDDLEWARE")
         # self.enabled_spider_middleware = [cls() for cls in enabled_spider_middleware]
 
     async def open_scheduler(self):

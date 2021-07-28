@@ -6,7 +6,7 @@ class DefaultRequestHeadersDownloadMiddleware:
         self.default_headers = None
 
     def open_spider(self, spider):
-        self.default_headers = Headers(spider.settings.get("DEFAULT_REQUEST_HEADER", {}))
+        self.default_headers = Headers(spider.settings.get_dict("DEFAULT_REQUEST_HEADER"))
 
     def process_request(self, request, spider):
         # todo: 处理headers大小写为统一规则，否则合并会出现多个相同headers。

@@ -2,7 +2,7 @@ from nhm_spider.download_middleware.default_headers import DefaultRequestHeaders
 from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
 from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
 
-VERSION = 1.32
+VERSION = 1.33
 # 请求队列的最大值，控制此值可控制内存使用
 REQUEST_QUEUE_MAX_SIZE = 0
 # 是否使用session

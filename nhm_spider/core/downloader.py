@@ -25,11 +25,11 @@ class Downloader:
             # print("Ending request")
             pass
 
-        self.__headers = self.spider.settings.get("DEFAULT_REQUEST_HEADER", {})
-        request_timeout = self.spider.settings.get("REQUEST_TIMEOUT", 180)
+        self.__headers = self.spider.settings.get_dict("DEFAULT_REQUEST_HEADER")
+        request_timeout = self.spider.settings.get_int("REQUEST_TIMEOUT", 180)
         self.__timeout = ClientTimeout(total=request_timeout)
-        self.__clear_cookie = self.spider.settings.get("CLEAR_COOKIE", False)
-        self.__use_session = self.spider.settings.get("USE_SESSION", True)
+        self.__clear_cookie = self.spider.settings.get_bool("CLEAR_COOKIE", False)
+        self.__use_session = self.spider.settings.get_bool("USE_SESSION", True)
 
         trace_config = aiohttp.TraceConfig()
         trace_config.on_request_start.append(on_request_start)
