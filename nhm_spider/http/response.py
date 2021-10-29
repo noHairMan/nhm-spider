@@ -1,6 +1,6 @@
 import json
 
-from scrapy import Selector
+from parsel import Selector
 
 
 class Response:

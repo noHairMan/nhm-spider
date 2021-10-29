@@ -38,5 +38,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.9',  # 这里指定python版本号必须大于3.9才可以安装
-    install_requires=["aiomysql", "scrapy", "aiohttp"]  # 我们的模块所用到的依赖, 这里指定的话, 用户安装你的模块时, 会自动安装这些依赖
+    install_requires=["aiohttp"]  # 我们的模块所用到的依赖, 这里指定的话, 用户安装你的模块时, 会自动安装这些依赖
 )
