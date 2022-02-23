@@ -10,8 +10,6 @@ class SettingsManager(dict):
             return int(self.get(key, default or 0))
         except TypeError:
             raise SettingsTypeError(key, self[key], int)
-        except Exception:
-            raise
 
     get_int = get_integer
 
@@ -20,16 +18,12 @@ class SettingsManager(dict):
             return dict(self.get(key, default or {}))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
-        except Exception:
-            raise
 
     def get_boolean(self, key, default=None):
         try:
             return bool(self.get(key, default or False))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
-        except Exception:
-            raise
 
     get_bool = get_boolean
 
@@ -38,9 +32,7 @@ class SettingsManager(dict):
             return bool(self.get(key, default or ""))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
-        except Exception:
-            raise
-        
+
     get_str = get_string
 
     def get_list(self, key, default=None):
@@ -48,8 +40,6 @@ class SettingsManager(dict):
             return list(self.get(key, default or []))
         except TypeError:
             raise SettingsTypeError(key, self[key], list)
-        except Exception:
-            raise
 
     def __or__(self, other):
         return SettingsManager(super(SettingsManager, self).__or__(other))

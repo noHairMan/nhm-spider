@@ -16,8 +16,6 @@ class Engine:
     @time_limit(display=True)
     def run(self, spider_class):
         spider = spider_class.from_crawler()
-        # if not hasattr(spider, "custom_settings"):
-        #     spider.custom_settings = {}
 
         downloader = Downloader(spider)
         scheduler = Scheduler(spider)

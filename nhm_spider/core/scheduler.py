@@ -27,7 +27,7 @@ class Scheduler:
         settings = spider.settings
 
         # pipeline
-        self.concurrent_requests = settings.get_int("CONCURRENT_REQUESTS", 8)
+        self.concurrent_requests: int = settings.get_int("CONCURRENT_REQUESTS", 8)
         enabled_pipeline = settings.get_list("ENABLED_PIPELINE")
         self.enabled_pipeline = [cls() for cls in enabled_pipeline]
         # download middleware
@@ -93,7 +93,7 @@ class Scheduler:
             # 初始化
             results = spider.start_request()
             await self.process_results(results)
-            for task_number in range(self.concurrent_requests):
+            for _ in range(self.concurrent_requests):
                 task = asyncio.create_task(self.process(downloader))
                 tasks.append(task)
 
