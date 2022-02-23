@@ -7,6 +7,7 @@ from nhm_spider.settings.settings_manager import SettingsManager
 
 
 class BaseSpider(ABC):
+    name: str
     start_urls: list
     settings: dict
     custom_settings: dict
@@ -23,8 +24,16 @@ class BaseSpider(ABC):
         start_urls里的方法的回调，处理方法。
         """
 
+    @classmethod
+    @abstractmethod
+    def from_crawler(cls, crawler=None, *args, **kwargs):
+        """
+        创建实例的类方法
+        """
+
 
 class Spider(BaseSpider):
+    name = "Spider"
     start_urls = []
     custom_settings = {}
 

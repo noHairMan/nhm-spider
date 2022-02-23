@@ -9,6 +9,9 @@ from nhm_spider.exceptions import SettingsError
 
 
 class Engine:
+    """
+    todo: deprecated
+    """
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
 

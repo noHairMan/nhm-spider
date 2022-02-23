@@ -1,4 +1,4 @@
-from nhm_spider import Item, Spider, Engine, Request, Field
+from nhm_spider import Item, Spider, Request, Field, CrawlerProcess
 
 
 class MpItem(Item):
@@ -6,6 +6,7 @@ class MpItem(Item):
 
 
 class MpSpider(Spider):
+    name = "MpSpider"
     custom_settings = {
         "USE_SESSION": True,
         "CLEAR_COOKIE": False,
@@ -20,6 +21,7 @@ class MpSpider(Spider):
         ],
         # "RUN_FOREVER": True,
         # "RUN_LOOP_INTERVAL": 5,
+        "DEBUG": True,
     }
 
     def __init__(self):
@@ -47,5 +49,6 @@ class MpSpider(Spider):
 
 
 if __name__ == '__main__':
-    engine = Engine()
-    engine.run(MpSpider)
+    process = CrawlerProcess()
+    process.crawl(MpSpider)
+    process.start()

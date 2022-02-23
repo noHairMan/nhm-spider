@@ -15,6 +15,3 @@ class SignalManager:
 
     def connect(self):
         signal.signal(signal.SIGINT, self.handler)
-
-    def __del__(self):
-        pass

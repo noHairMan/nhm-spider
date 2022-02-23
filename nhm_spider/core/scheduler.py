@@ -21,13 +21,11 @@ class Scheduler:
         self.spider = spider
         self.item_count = 0
         self.request_count = 0
-        self.tasks = []
         self.__opened = False
 
         settings = spider.settings
 
         # pipeline
-        self.concurrent_requests: int = settings.get_int("CONCURRENT_REQUESTS", 8)
         enabled_pipeline = settings.get_list("ENABLED_PIPELINE")
         self.enabled_pipeline = [cls() for cls in enabled_pipeline]
         # download middleware
@@ -39,8 +37,6 @@ class Scheduler:
 
     async def open_scheduler(self):
         self.request_queue = SpiderPriorityQueue()
-        self.signal_manager = SignalManager(self.request_queue)
-        self.signal_manager.connect()
         self.__opened = True
 
     def close_scheduler(self):
@@ -54,93 +50,97 @@ class Scheduler:
         request = await self.request_queue.get()
         return request
 
-    async def crawl(self, spider, downloader):
-        """
-        协程主程序
-        """
-        # todo: 应打印初始化了哪些模块。
+    async def enqueue_request(self, request):
+        assert request.callback, "未指定回调方法。"
+        await self.request_queue.put(request)
 
-        # todo: 应尝试减少某些模块的初始化次数
-        # if self.is_opened is False:
-        #     # scheduler.init
-        #     await self.open_scheduler()
-        # if downloader.is_opened is False:
-        #     await downloader.open_downloader()
-        await self.open_scheduler()
-        await downloader.open_downloader()
-        await spider.custom_init()
-
-        # init pipeline
-        for pipeline in self.enabled_pipeline:
-            # 确认是否使用的异步的pipeline
-            if not hasattr(pipeline, "open_spider"):
-                continue
-            pip = pipeline.open_spider(spider)
-            if isawaitable(pip):
-                await pip
-
-        # init download middleware
-        for middleware in self.enabled_download_middleware:
-            # 确认是否使用的异步的middleware
-            if not hasattr(middleware, "open_spider"):
-                continue
-            mid = middleware.open_spider(spider)
-            if isawaitable(mid):
-                await mid
-
-        tasks = self.tasks
-        try:
-            # 初始化
-            results = spider.start_request()
-            await self.process_results(results)
-            for _ in range(self.concurrent_requests):
-                task = asyncio.create_task(self.process(downloader))
-                tasks.append(task)
-
-            # 阻塞并等待所有任务完成
-            tasks.append(asyncio.create_task(self.heartbeat()))
-            await self.request_queue.join()
-
-            # 正常推出时执行的关闭
-            success_close_task = spider.custom_success_close()
-            if isawaitable(success_close_task):
-                await success_close_task
-
-        finally:
-            # clear pipeline
-            for pipeline in self.enabled_pipeline:
-                # 确认是否使用的异步的pipeline
-                if not hasattr(pipeline, "close_spider"):
-                    continue
-                pip = pipeline.close_spider(spider)
-                if isawaitable(pip):
-                    await pip
-
-            # clear download middleware
-            for middleware in self.enabled_download_middleware:
-                # 确认是否使用的异步的middleware
-                if not hasattr(middleware, "close_spider"):
-                    continue
-                mid = middleware.close_spider(spider)
-                if isawaitable(mid):
-                    await mid
-
-            await downloader.session.close()
-            # 所有task完成后，取消任务，退出程序
-            for task in tasks:
-                task.cancel()
-            # 等待task取消完成
-            await asyncio.gather(*tasks, return_exceptions=True)
-
-            spider_close_task = spider.custom_close()
-            if isawaitable(spider_close_task):
-                await spider_close_task
-
-            # 清理内存，消除对 RUN_FOREVER = True 时的影响
-            self.dupe_memory_queue.clear()
-            self.tasks.clear()
-
-            # todo: 应打印采集完成汇总的数据。
+    # async def crawl(self, spider, downloader):
+    #     """
+    #     协程主程序
+    #     """
+    #     # todo: 应打印初始化了哪些模块。
+    #
+    #     # todo: 应尝试减少某些模块的初始化次数
+    #     # if self.is_opened is False:
+    #     #     # scheduler.init
+    #     #     await self.open_scheduler()
+    #     # if downloader.is_opened is False:
+    #     #     await downloader.open_downloader()
+    #     await self.open_scheduler()
+    #     await downloader.open_downloader()
+    #     await spider.custom_init()
+    #
+    #     # init pipeline
+    #     for pipeline in self.enabled_pipeline:
+    #         # 确认是否使用的异步的pipeline
+    #         if not hasattr(pipeline, "open_spider"):
+    #             continue
+    #         pip = pipeline.open_spider(spider)
+    #         if isawaitable(pip):
+    #             await pip
+    #
+    #     # init download middleware
+    #     for middleware in self.enabled_download_middleware:
+    #         # 确认是否使用的异步的middleware
+    #         if not hasattr(middleware, "open_spider"):
+    #             continue
+    #         mid = middleware.open_spider(spider)
+    #         if isawaitable(mid):
+    #             await mid
+    #
+    #     tasks = self.tasks
+    #     try:
+    #         # 初始化
+    #         results = spider.start_request()
+    #         await self.process_results(results)
+    #         for _ in range(self.concurrent_requests):
+    #             task = asyncio.create_task(self.process(downloader))
+    #             tasks.append(task)
+    #
+    #         # 阻塞并等待所有任务完成
+    #         tasks.append(asyncio.create_task(self.heartbeat()))
+    #         await self.request_queue.join()
+    #
+    #         # 正常推出时执行的关闭
+    #         success_close_task = spider.custom_success_close()
+    #         if isawaitable(success_close_task):
+    #             await success_close_task
+    #
+    #     finally:
+    #         # clear pipeline
+    #         for pipeline in self.enabled_pipeline:
+    #             # 确认是否使用的异步的pipeline
+    #             if not hasattr(pipeline, "close_spider"):
+    #                 continue
+    #             pip = pipeline.close_spider(spider)
+    #             if isawaitable(pip):
+    #                 await pip
+    #
+    #         # clear download middleware
+    #         for middleware in self.enabled_download_middleware:
+    #             # 确认是否使用的异步的middleware
+    #             if not hasattr(middleware, "close_spider"):
+    #                 continue
+    #             mid = middleware.close_spider(spider)
+    #             if isawaitable(mid):
+    #                 await mid
+    #
+    #         await downloader.session.close()
+    #         # 所有task完成后，取消任务，退出程序
+    #         for task in tasks:
+    #             task.cancel()
+    #         # 等待task取消完成
+    #         await asyncio.gather(*tasks, return_exceptions=True)
+    #
+    #         spider_close_task = spider.custom_close()
+    #         if isawaitable(spider_close_task):
+    #             await spider_close_task
+    #
+    #         # 清理内存，消除对 RUN_FOREVER = True 时的影响
+    #         self.dupe_memory_queue.clear()
+    #         self.tasks.clear()
+    #
+    #         # todo: 应打印采集完成汇总的数据。
 
     async def heartbeat(self, heartbeat_interval=60):
         """
@@ -207,10 +207,6 @@ class Scheduler:
 
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
-
-    async def enqueue_request(self, request):
-        assert request.callback, "未指定回调方法。"
-        await self.request_queue.put(request)
 
     async def process(self, downloader):
         while True:
@@ -308,3 +304,4 @@ class Scheduler:
             raise TypeError("未知的Response类型")
 
         return response
+
