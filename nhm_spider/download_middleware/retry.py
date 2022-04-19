@@ -1,8 +1,9 @@
+from nhm_spider.download_middleware.base import DownloadMiddleware
 from nhm_spider.http.response import Response
 from nhm_spider.common.log import get_logger
 
 
-class RetryDownloadMiddleware:
+class RetryDownloadMiddleware(DownloadMiddleware):
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
         # 最大重试次数

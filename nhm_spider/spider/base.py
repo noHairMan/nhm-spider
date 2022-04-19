@@ -1,38 +1,19 @@
-from abc import ABC, abstractmethod
+"""
+    爬虫基类
 
-from nhm_spider.http.request import Request
+    @Time : 2022/4/19 15:09
+    @Author : noHairMan
+    @File : base.py
+    @Project : nhm-spider
+"""
 from nhm_spider.common.log import get_logger
-from nhm_spider.utils.project import get_default_settings
+from nhm_spider.http.request import Request
 from nhm_spider.settings.settings_manager import SettingsManager
+from nhm_spider.spider.interface import SpiderAbc
+from nhm_spider.utils.project import get_default_settings
 
 
-class BaseSpider(ABC):
-    name: str
-    start_urls: list
-    settings: dict
-    custom_settings: dict
-
-    @abstractmethod
-    def start_request(self):
-        """
-        启动爬虫任务的方法，需添加启动任务到此处
-        """
-
-    @abstractmethod
-    def parse(self):
-        """
-        start_urls里的方法的回调，处理方法。
-        """
-
-    @classmethod
-    @abstractmethod
-    def from_crawler(cls, crawler=None, *args, **kwargs):
-        """
-        创建实例的类方法
-        """
-
-
-class Spider(BaseSpider):
+class Spider(SpiderAbc):
     name = "Spider"
     start_urls = []
     custom_settings = {}

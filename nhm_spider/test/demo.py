@@ -1,8 +1,22 @@
 from nhm_spider import Item, Spider, Request, Field, CrawlerProcess
+from nhm_spider.pipeline import Pipeline
 
 
 class MpItem(Item):
     page = Field()
+
+
+class MpPipeline(Pipeline):
+
+    async def open_spider(self, spider):
+        pass
+
+    async def process_item(self, item, spider):
+
+        return item
+
+    # async def close_spider(self, spider):
+    #     pass
 
 
 class MpSpider(Spider):
@@ -16,6 +30,7 @@ class MpSpider(Spider):
                           'Chrome/83.0.4103.97 Safari/537.36',
         },
         "ENABLED_PIPELINE": [
+            MpPipeline
             # TmPipeline,
             # TmQueryPipeline,
         ],

@@ -1,9 +1,10 @@
 from asyncio.exceptions import TimeoutError
 
 from nhm_spider.common.log import get_logger
+from nhm_spider.download_middleware.base import DownloadMiddleware
 
 
-class TimeoutDownloadMiddleware:
+class TimeoutDownloadMiddleware(DownloadMiddleware):
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
 
