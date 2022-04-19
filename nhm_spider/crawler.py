@@ -13,7 +13,9 @@ from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
 
-from nhm_spider import Request, Response, Item
+from nhm_spider.http.request import Request
+from nhm_spider.http.response import Response
+from nhm_spider.item import Item
 from nhm_spider.common.log import get_logger
 from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.downloader import Downloader
