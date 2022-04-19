@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    采集管理
+    爬行者
     
     @Time : 2022/2/23 15:58
     @Author : noHairMan
@@ -60,18 +60,12 @@ class Crawler:
 
         # init pipeline
         for pipeline in self.enabled_pipeline:
-            # 确认是否使用的异步的pipeline
-            if not hasattr(pipeline, "open_spider"):
-                continue
             pip = pipeline.open_spider(self.spider)
             if isawaitable(pip):
                 await pip
 
         # init download middleware
         for middleware in self.enabled_download_middleware:
-            # 确认是否使用的异步的middleware
-            if not hasattr(middleware, "open_spider"):
-                continue
             mid = middleware.open_spider(self.spider)
             if isawaitable(mid):
                 await mid
@@ -82,18 +76,12 @@ class Crawler:
         """
         # clear pipeline
         for pipeline in self.enabled_pipeline:
-            # 确认是否使用的异步的pipeline
-            if not hasattr(pipeline, "close_spider"):
-                continue
             pip = pipeline.close_spider(self.spider)
             if isawaitable(pip):
                 await pip
 
         # clear download middleware
         for middleware in self.enabled_download_middleware:
-            # 确认是否使用的异步的middleware
-            if not hasattr(middleware, "close_spider"):
-                continue
             mid = middleware.close_spider(self.spider)
             if isawaitable(mid):
                 await mid
@@ -200,9 +188,6 @@ class Crawler:
             self.scheduler.item_count += 1
 
             for pipeline in self.enabled_pipeline:
-                # 确认是否使用的异步的pipeline
-                if not hasattr(pipeline, "process_item"):
-                    continue
                 obj = pipeline.process_item(obj, self.spider)
                 if isawaitable(obj):
                     obj = await obj
@@ -238,9 +223,6 @@ class Crawler:
     async def download_request(self, request):
         # process_request
         for middleware in self.enabled_download_middleware:
-            # 确认是否使用的异步的middleware
-            if not hasattr(middleware, "process_request"):
-                continue
             result = middleware.process_request(request, self.spider)
             if isawaitable(result):
                 result = await result
@@ -268,9 +250,6 @@ class Crawler:
         # process_response
         if isinstance(response, Response):
             for middleware in self.enabled_download_middleware:
-                # 确认是否使用的异步的middleware
-                if not hasattr(middleware, "process_response"):
-                    continue
                 result = middleware.process_response(request, response, self.spider)
                 if isawaitable(result):
                     result = await result
@@ -284,9 +263,6 @@ class Crawler:
                     break
         elif isinstance(response, Exception):
             for middleware in self.enabled_download_middleware:
-                # 确认是否使用的异步的middleware
-                if not hasattr(middleware, "process_exception"):
-                    continue
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):
                     result = await result
