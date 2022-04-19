@@ -8,7 +8,7 @@ class Field:
     pass
 
 
-class Item(dict):
+class Item:
     __meta = set()
 
     def __init__(self, fields: dict = None, **kwargs):

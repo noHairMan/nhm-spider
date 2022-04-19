@@ -7,16 +7,8 @@ class MpItem(Item):
 
 
 class MpPipeline(Pipeline):
-
-    async def open_spider(self, spider):
-        pass
-
     async def process_item(self, item, spider):
-
         return item
-
-    # async def close_spider(self, spider):
-    #     pass
 
 
 class MpSpider(Spider):
@@ -30,9 +22,7 @@ class MpSpider(Spider):
                           'Chrome/83.0.4103.97 Safari/537.36',
         },
         "ENABLED_PIPELINE": [
-            MpPipeline
-            # TmPipeline,
-            # TmQueryPipeline,
+            # MpPipeline,
         ],
         # "RUN_FOREVER": True,
         # "RUN_LOOP_INTERVAL": 5,
@@ -45,9 +35,7 @@ class MpSpider(Spider):
         self.page_url = "http://www.mp.cc/search/{}"
 
     async def start_request(self):
-        request = Request(self.start_url, self.parse,
-                          # proxy="http://127.0.0.1:8888"
-                          )
+        request = Request(self.start_url, self.parse)
         yield request
 
     def parse(self, response):

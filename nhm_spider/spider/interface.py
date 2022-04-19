@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    爬虫接口
+    爬虫类接口
     
     @Time : 2022/4/19 15:18
     @Author : noHairMan
