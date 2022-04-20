@@ -1,3 +1,13 @@
+from enum import Enum
+
+
+class ExceptionEnum(Enum):
+    """
+    异常的错误信息提示
+    """
+    TYPE_ERROR = "未知的对象类型"
+
+
 class NhmException(Exception):
     pass
 

@@ -12,6 +12,7 @@ from asyncio import Semaphore, Future, wait
 from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
+from typing import Union
 
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
@@ -20,7 +21,7 @@ from nhm_spider.common.log import get_logger
 from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.downloader import Downloader
 from nhm_spider.core.scheduler import Scheduler
-from nhm_spider.exceptions import NoCrawlerError
+from nhm_spider.exceptions import NoCrawlerError, ExceptionEnum
 from nhm_spider.utils.request import request_fingerprint
 from nhm_spider.utils.signal import SignalManager
 
@@ -166,55 +167,62 @@ class Crawler:
                 # todo: 考虑如何处理
                 self.logger.error(f"丢弃该任务，未处理的处理结果类型：{results}。")
 
+    async def process_request(self, obj, response):
+        """
+        处理单个request，将request添加到请求队列中等待调度
+        """
+
+        # 处理request对象优先级，深度优先
+        obj.priority = (response.request.priority - 1) if obj.priority is None and response is not None else 0
+        # 根据指纹去重
+        fp = request_fingerprint(obj)
+        if obj.dont_filter is True or fp not in self.scheduler.dupe_memory_queue:
+            obj.fp = fp
+            await self.scheduler.enqueue_request(obj)
+            self.scheduler.dupe_memory_queue.add(fp)
+
+    async def process_item(self, obj):
+        """
+        处理单个item，在pipeline中处理item
+        """
+
+        if not self.enabled_pipeline and self.spider.DEBUG is True:
+            self.logger.info(obj)
+        self.scheduler.item_count += 1
+        for pipeline in self.enabled_pipeline:
+            obj = pipeline.process_item(obj, self.spider)
+            if isawaitable(obj):
+                obj = await obj
+
     async def process_result_single(self, obj, response):
+        """
+        处理spider中返回的对象
+        """
         if isinstance(obj, Request):
-            # 处理request对象优先级，深度优先
-            if obj.priority is None:
-                if response is not None:
-                    obj.priority = response.request.priority - 1
-                else:
-                    obj.priority = 0
-
-            fp = request_fingerprint(obj)
-            # 根据指纹去重。
-            if obj.dont_filter is True or fp not in self.scheduler.dupe_memory_queue:
-                obj.fp = fp
-                await self.scheduler.enqueue_request(obj)
-                self.scheduler.dupe_memory_queue.add(fp)
-
+            await self.process_request(obj, response)
         elif isinstance(obj, Item):
-            if not self.enabled_pipeline and self.spider.DEBUG is True:
-                self.logger.info(obj)
-            self.scheduler.item_count += 1
-
-            for pipeline in self.enabled_pipeline:
-                obj = pipeline.process_item(obj, self.spider)
-                if isawaitable(obj):
-                    obj = await obj
-
+            await self.process_item(obj)
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
 
     async def process(self, request):
-
         response = await self.download_request(request)
-        if not isinstance(response, Response):
+        if isinstance(response, Response):
+            if self.spider.DEBUG is True:
+                self.logger.info(f"Crawled ({response.status}) {response}.")
+        else:
             # todo: 待处理非response的情况
-
             # 失败的请求也要调用task_done，否则无法结束。
             self.scheduler.request_queue.task_done()
             self.scheduler.request_count += 1
             return
-        else:
-            if self.spider.DEBUG is True:
-                self.logger.info(f"Crawled ({response.status}) {response}.")
 
         # todo: process_spider_in
         results = request.callback(response)
         # todo: process_spider_out 非此位置
         try:
             await self.process_results(results, response)
-        except:
+        except Exception:
             self.logger.error(format_exc())
         finally:
             self.scheduler.request_queue.task_done()
@@ -227,25 +235,24 @@ class Crawler:
             if isawaitable(result):
                 result = await result
 
-            if result is None:
-                pass
-            elif isinstance(result, Request):
+            if isinstance(result, Request):
                 return await self.process_results(result)
             elif isinstance(result, Response):
                 # 返回response则直接跳过process_request
                 request = result
                 break
-            else:
-                self.logger.error(f"未知的对象类型，{request}。")
-                raise TypeError("未知的对象类型")
+            elif result is not None:
+                self.logger.error(f"未知的对象类型，{result}。")
+                raise TypeError(ExceptionEnum.TYPE_ERROR)
 
+        # download
         if isinstance(request, Request):
             response = await self.downloader.send_request(request)
         elif isinstance(request, Response):
             response = request
         else:
-            self.logger.error(f"未知的对象类型，{request}。")
-            raise TypeError("未知的对象类型")
+            self.logger.error(f"未知的对象类型: {request}。")
+            raise TypeError(ExceptionEnum.TYPE_ERROR)
 
         # process_response
         if isinstance(response, Response):
@@ -254,30 +261,32 @@ class Crawler:
                 if isawaitable(result):
                     result = await result
 
-                if result is None:
-                    pass
-                elif isinstance(result, Request):
+                if isinstance(result, Request):
                     return await self.process_results(result)
                 elif isinstance(result, Response):
                     response = result
                     break
+                elif result is not None:
+                    self.logger.error(f"未知的对象类型: {result}。")
+                    raise TypeError("未知的对象类型")
         elif isinstance(response, Exception):
             for middleware in self.enabled_download_middleware:
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):
                     result = await result
 
-                if result is None:
-                    pass
-                elif isinstance(result, Request):
+                # todo: return exception 未处理
+                if isinstance(result, Request):
                     return await self.process_results(result)
                 elif isinstance(result, Response):
                     response = result
                     break
-
+                elif result is not None:
+                    self.logger.error(f"未知的对象类型: {result}。")
+                    raise TypeError("未知的对象类型")
         else:
-            self.logger.error(f"未知的Response类型，{response}。")
-            raise TypeError("未知的Response类型")
+            self.logger.error(f"未知的对象类型，{response}。")
+            raise TypeError(ExceptionEnum.TYPE_ERROR)
 
         return response
 
