@@ -9,7 +9,7 @@
 """
 from abc import ABC, abstractmethod
 
-from nhm_spider.item import Item
+from nhm_spider.item.base import Item
 from nhm_spider.spider.interface import SpiderAbc
 
 

@@ -29,7 +29,7 @@ class DownloadMiddleware(DownloadMiddlewareAbc):
 
     def process_exception(self, request: Request, exception: NhmException, spider: SpiderAbc) -> \
             Union[Request, Response, NhmException, None]:
-        return exception
+        return None
 
     def close_spider(self, spider: SpiderAbc) -> None:
         return None

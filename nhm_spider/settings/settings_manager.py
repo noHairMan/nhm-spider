@@ -29,7 +29,7 @@ class SettingsManager(dict):
 
     def get_string(self, key, default=None):
         try:
-            return bool(self.get(key, default or ""))
+            return str(self.get(key, default or ""))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
 

@@ -14,12 +14,12 @@ class TimeoutDownloadMiddleware(DownloadMiddleware):
     def process_exception(self, request, exception, spider):
         if isinstance(exception, TimeoutError):
             request.dont_filter = True
-            retry_times = request.meta.get("exception_retry_times", 0)
+            retry_times = request.meta.get("exception_retry_times", 1)
             if retry_times < self.max_retry_times:
-                self.logger.info(f"{request} exception: TimeoutError, retry {retry_times + 1} time...")
+                self.logger.info(f"{request} exception: TimeoutError, retry {retry_times} time...")
                 request.meta["exception_retry_times"] = retry_times + 1
                 return request
             else:
                 self.logger.warning(f"{request} exception error, retry {self.max_retry_times} times error.")
                 return None
-        return exception
+        return None

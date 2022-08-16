@@ -22,14 +22,27 @@ class RetryDownloadMiddleware(DownloadMiddleware):
                 # 处理忽略的错误状态码
                 return response
 
-            if request.dont_filter is not True:
-                request.dont_filter = True
-            retry_times = request.meta.get("retry_times", 0)
-            if retry_times < self.max_retry_times:
-                self.logger.info(f"({response.status}) {response} status error, retry {retry_times + 1} time...")
-                request.meta["retry_times"] = retry_times + 1
-                return request
-            else:
-                self.logger.warning(f"{response} retry max {self.max_retry_times} times error。")
-                return None
+            return self._retry(request, response)
         return response
+
+    def process_exception(self, request, exception, spider):
+        # todo: 待设置指定异常重试
+        # if (
+        #     isinstance(exception, self.EXCEPTIONS_TO_RETRY)
+        #     and not request.meta.get('dont_retry', False)
+        # ):
+        #     return self._retry(request, exception)
+        return self._retry(request, exception.__class__.__name__)
+
+    def _retry(self, request, reason):
+        # todo: 待验证重试是否正确
+        if request.dont_filter is not True:
+            request.dont_filter = True
+        retry_times = request.meta.get("retry_times", 1)
+        if retry_times < self.max_retry_times:
+            self.logger.info(f"{reason}, retry {retry_times} time...")
+            request.meta["retry_times"] = retry_times + 1
+            return request
+        else:
+            self.logger.warning(f"{reason} retry max {self.max_retry_times} times error。")
+            return None

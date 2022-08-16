@@ -8,25 +8,27 @@
     @Project : nhm-spider
 """
 import asyncio
-from asyncio import Semaphore, Future, wait
+import time
+from asyncio import Semaphore, Future, wait_for
+from asyncio.exceptions import TimeoutError
 from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import GeneratorType, AsyncGeneratorType
-from typing import Union
 
-from nhm_spider.http.request import Request
-from nhm_spider.http.response import Response
-from nhm_spider.item import Item
 from nhm_spider.common.log import get_logger
 from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.downloader import Downloader
 from nhm_spider.core.scheduler import Scheduler
-from nhm_spider.exceptions import NoCrawlerError, ExceptionEnum
+from nhm_spider.exceptions import NoCrawlerError, ExceptionEnum, NhmException, StopEngine
+from nhm_spider.http.request import Request
+from nhm_spider.http.response import Response
+from nhm_spider.item.base import Item
 from nhm_spider.utils.request import request_fingerprint
 from nhm_spider.utils.signal import SignalManager
 
 
 class Crawler:
+
     def __init__(self, spider_class):
         self.logger = get_logger("Crawler")
         self.spider = spider_class.from_crawler(crawler=self)
@@ -43,10 +45,24 @@ class Crawler:
         # spider middleware
         # enabled_spider_middleware = settings.get_list("ENABLED_SPIDER_MIDDLEWARE")
         # self.enabled_spider_middleware = [cls() for cls in enabled_spider_middleware]
+        self.__STOP_FLAG = None
+
+    def init_status(self):
+        self.__STOP_FLAG = False
+
+    def stop(self):
+        self.__STOP_FLAG = True
 
     @time_limit(display=True)
     def run(self):
+        self.init_status()
         asyncio.run(self.crawl())
+
+    def run_forever(self):
+        RUN_LOOP_INTERVAL = self.spider.settings.get_integer("RUN_LOOP_INTERVAL")
+        while 1:
+            self.run()
+            time.sleep(RUN_LOOP_INTERVAL)
 
     async def _open_crawler(self):
         """
@@ -91,10 +107,13 @@ class Crawler:
         """
         协程主程序
         """
+
         def callback(future: Future):
             semaphore.release()
             exception = future.exception()
             if exception:
+                self.scheduler.request_queue.task_done()
+                self.scheduler.request_count += 1
                 raise exception
 
         # todo: 应打印初始化了哪些模块。
@@ -109,23 +128,25 @@ class Crawler:
             await self.process_results(results)
             # todo: heartbeat应放置到单独模块中去
             tasks.append(asyncio.create_task(self.scheduler.heartbeat()))
-            while 1:
+            while not self.__STOP_FLAG:
                 # 强制退出时候退出循环 todo: 续判断退出到时候当前已经开始的任务是否已经执行完？
                 if self.scheduler.request_queue._finished.is_set():
                     break
                 # 所有任务都已经处理完时，执行退出循环
                 if self.scheduler.request_queue.empty() and semaphore._value == self.concurrent_requests:
                     break
-                rs = await wait([self.scheduler.next_request()], timeout=1)
-                if not rs[0]:
+                try:
+                    request = await wait_for(self.scheduler.next_request(), timeout=1)
+                except TimeoutError:
                     continue
-                request = rs[0].pop().result()
                 await semaphore.acquire()
-                # todo
                 asyncio.create_task(self.process(request)).add_done_callback(callback)
 
-            # 阻塞并等待所有任务完成
-            await self.scheduler.request_queue.join()
+            if not self.__STOP_FLAG:
+                # 阻塞并等待所有任务完成
+                await self.scheduler.request_queue.join()
+            else:
+                self.stop()
 
             # 正常推出时执行的关闭
             success_close_task = self.spider.custom_success_close()
@@ -218,11 +239,16 @@ class Crawler:
             return
 
         # todo: process_spider_in
+        # generator or async generator
+        # 并不会实际执行
         results = request.callback(response)
         # todo: process_spider_out 非此位置
         try:
             await self.process_results(results, response)
-        except Exception:
+        except Exception as exc:
+            # 在 Spider 中主动停止 Engine
+            if isinstance(exc, StopEngine):
+                self.stop()
             self.logger.error(format_exc())
         finally:
             self.scheduler.request_queue.task_done()
@@ -274,16 +300,18 @@ class Crawler:
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):
                     result = await result
-
-                # todo: return exception 未处理
                 if isinstance(result, Request):
                     return await self.process_results(result)
                 elif isinstance(result, Response):
                     response = result
                     break
+                elif isinstance(result, NhmException):
+                    raise result
                 elif result is not None:
                     self.logger.error(f"未知的对象类型: {result}。")
                     raise TypeError("未知的对象类型")
+            else:
+                raise response
         else:
             self.logger.error(f"未知的对象类型，{response}。")
             raise TypeError(ExceptionEnum.TYPE_ERROR)
@@ -302,12 +330,20 @@ class CrawlerRunner:
 
 class CrawlerProcess(CrawlerRunner):
     def start(self):
+        """
+        启动已添加的到爬虫列表中的爬虫。
+
+        可同时运行一个或多个爬虫
+        1. 运行单个爬虫时，会在当前进程里启动爬虫
+        2. 运行多个爬虫时，会使用多进程，在每个进程里启动单独的爬虫。
+        """
         if not self.crawlers:
             raise NoCrawlerError("use method `CrawlerProcess.crawl` add spider class.")
         elif len(self.crawlers) == 1:
             # 只有一个爬虫任务，在主进程中运行
-            crawler = self.crawlers[0]
-            crawler.run()
+            crawler: Crawler = self.crawlers[0]
+            # 是否循环运行爬虫
+            crawler.run_forever() if crawler.spider.settings.get_bool("RUN_FOREVER") else crawler.run()
         else:
             # todo: 使用多进程，每个进程运行单个爬虫
             pass

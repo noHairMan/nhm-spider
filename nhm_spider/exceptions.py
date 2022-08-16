@@ -12,6 +12,12 @@ class NhmException(Exception):
     pass
 
 
+class StopEngine(NhmException):
+    """
+    主动抛出以停止采集
+    """
+
+
 class SettingsError(NhmException):
     pass
 

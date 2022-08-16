@@ -1,14 +1,7 @@
 import asyncio
-from inspect import isawaitable, iscoroutine
-from traceback import format_exc
-from types import GeneratorType, AsyncGeneratorType
 
 from nhm_spider.common.log import get_logger
-from nhm_spider.http import Request, Response
-from nhm_spider.item import Item
 from nhm_spider.utils.pqueue import SpiderPriorityQueue
-from nhm_spider.utils.request import request_fingerprint
-from nhm_spider.utils.signal import SignalManager
 
 
 class Scheduler:

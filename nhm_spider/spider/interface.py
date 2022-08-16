@@ -11,8 +11,8 @@ from abc import ABC, abstractmethod
 from typing import Union, Generator, AsyncGenerator, List, Mapping
 
 from nhm_spider.crawler import Crawler
-from nhm_spider.item import Item
 from nhm_spider.http.request import Request
+from nhm_spider.item.base import Item
 
 
 class SpiderAbc(ABC):

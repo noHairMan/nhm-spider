@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    Dao层item基类以及拓展类
+    dao层，各字段类型
     
-    @Time : 2022/7/8 16:42
+    @Time : 2022/7/8 16:18
     @Author : noHairMan
-    @File : __init__.py
+    @File : base.py.py
     @Project : nhm-spider
 """
