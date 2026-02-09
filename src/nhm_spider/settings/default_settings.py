@@ -2,7 +2,7 @@ from nhm_spider.download_middleware.default_headers import DefaultRequestHeaders
 from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
 from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
 
-VERSION = "2.0.2"
+VERSION = "3.0.0"
 # 是否使用session
 USE_SESSION = True
 # 是否清理session的cookie，USE_SESSION = False时不生效

@@ -1,0 +1,35 @@
+[project]
+name = "nhm-spider"
+version = "3.0.0"
+description = "base on asyncio, spider module like scrapy."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "noHairMan", email = "zongxuheng@163.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "aiohttp>=3.13.3",
+    "parsel>=1.11.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/noHairMan/nhm-spider"
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "build>=1.4.0",
+    "twine>=6.2.0",
+]
