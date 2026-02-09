@@ -4,10 +4,10 @@ from nhm_spider.common.log import get_logger
 
 
 class SpiderPriorityQueue(PriorityQueue):
-    def __init__(self, maxsize=0, loop=None):
+    def __init__(self, maxsize=0):
         self._finished = None
         self.logger = get_logger(self.__class__.__name__)
-        super(SpiderPriorityQueue, self).__init__(maxsize=maxsize, loop=loop)
+        super(SpiderPriorityQueue, self).__init__(maxsize=maxsize)
 
     def close(self):
         """

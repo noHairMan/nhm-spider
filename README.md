@@ -24,10 +24,10 @@ pip install nhm-spider
 # 然后执行：
 
 # 构建分发包
-uv run --with build python -m build
+uv run --module build
 
 # 上传到 PyPI
-uv run twine upload dist/*
+uv run --module twine upload dist/*
 ```
 
 - @auther: noHairMan
