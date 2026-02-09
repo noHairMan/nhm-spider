@@ -1,3 +1,7 @@
+from typing import Optional
+
+from aiohttp.typedefs import StrOrURL
+
 from nhm_spider.http.headers import Headers
 
 
@@ -10,7 +14,7 @@ class Request:
         self.errback: callable = errback
         self.headers: Headers = Headers(headers)
         self.cookies: dict = cookies
-        self.proxy: dict = proxy
+        self.proxy: Optional[StrOrURL] = proxy
         self.form: dict = form
         self.meta: dict = meta or {}
         self.dont_filter: bool = dont_filter

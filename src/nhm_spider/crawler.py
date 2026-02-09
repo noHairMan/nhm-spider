@@ -155,7 +155,6 @@ class Crawler:
         finally:
             await self._close_crawler()
 
-            await self.downloader.session.close()
             # 所有task完成后，取消任务，退出程序
             for task in tasks:
                 task.cancel()
