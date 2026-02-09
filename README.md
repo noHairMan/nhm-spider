@@ -21,7 +21,9 @@ pip install nhm-spider
 
 ```bash
 # 更新版本号在 pyproject.toml 中
-# 然后执行：
+
+# 更新lock文件
+uv lock
 
 # 构建分发包
 uv run --module build
