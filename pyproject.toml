@@ -19,6 +19,15 @@ dependencies = [
     "parsel>=1.11.0",
 ]
 
+
+[dependency-groups]
+dev = [
+    "build>=1.4.0",
+    "pre-commit>=4.5.1",
+    "twine>=6.2.0",
+]
+
+
 [project.urls]
 "Homepage" = "https://github.com/noHairMan/nhm-spider"
 
@@ -29,8 +38,21 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[dependency-groups]
-dev = [
-    "build>=1.4.0",
-    "twine>=6.2.0",
-]
+[tool.uv.sources]
+
+[[tool.uv.index]]
+url = "https://pypi.python.org/simple/"
+default = true
+
+[tool.black]
+line_length = 120
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+py_version = 314
+skip_gitignore = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["nhm_spider"]
+multi_line_output = 3
+line_length = 120

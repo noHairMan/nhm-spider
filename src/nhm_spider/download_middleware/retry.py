@@ -1,6 +1,6 @@
+from nhm_spider.common.log import get_logger
 from nhm_spider.download_middleware.base import DownloadMiddleware
 from nhm_spider.http.response import Response
-from nhm_spider.common.log import get_logger
 
 
 class RetryDownloadMiddleware(DownloadMiddleware):
@@ -14,7 +14,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
         self.ignore_http_error = spider.settings.get_dict("IGNORE_HTTP_ERROR")
 
     def process_response(self, request, response, spider):
-        if request.meta.get('dont_retry', False):
+        if request.meta.get("dont_retry", False):
             return response
 
         if isinstance(response, Response) and response.status != 200:
@@ -44,5 +44,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
             request.meta["retry_times"] = retry_times + 1
             return request
         else:
-            self.logger.warning(f"{reason} retry max {self.max_retry_times} times error。")
+            self.logger.warning(
+                f"{reason} retry max {self.max_retry_times} times error。",
+            )
             return None

@@ -1,4 +1,4 @@
-from logging import Formatter, StreamHandler, INFO, Logger
+from logging import INFO, Formatter, Logger, StreamHandler
 from typing import Union
 
 
@@ -17,7 +17,7 @@ class LoggerManager:
         hash_code = cls.hash(name, log_level)
         if hash_code in cls.__instance:
             return cls.__instance[hash_code]
-        formatter_option = f'%(asctime)s [%(name)s] %(levelname)s: %(message)s'
+        formatter_option = f"%(asctime)s [%(name)s] %(levelname)s: %(message)s"
         logger_formatter = Formatter(formatter_option)
         handler = StreamHandler()
         handler.setFormatter(logger_formatter)

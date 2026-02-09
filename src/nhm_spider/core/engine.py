@@ -12,6 +12,7 @@ class Engine:
     """
     todo: deprecated
     """
+
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
 
@@ -25,7 +26,9 @@ class Engine:
 
         run_forever = spider.settings.get_bool("RUN_FOREVER")
         if not isinstance(run_forever, bool):
-            raise SettingsError(f"Settings param `RUN_FOREVER` must be boolean., got type {type(run_forever)}.")
+            raise SettingsError(
+                f"Settings param `RUN_FOREVER` must be boolean., got type {type(run_forever)}.",
+            )
         if run_forever is True:
             run_loop_interval = spider.settings.get_int("RUN_LOOP_INTERVAL")
             while run_forever:

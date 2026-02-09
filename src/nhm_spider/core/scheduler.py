@@ -47,8 +47,10 @@ class Scheduler:
             last_request_count = self.request_count
             item_speed = self.item_count - last_item_count
             last_item_count = self.item_count
-            self.logger.info(f"Crawled {last_request_count} pages (at {request_speed} pages/min), "
-                             f"scraped {last_item_count} items (at {item_speed} items/min), "
-                             f"queue size {self.request_queue.qsize()}.")
+            self.logger.info(
+                f"Crawled {last_request_count} pages (at {request_speed} pages/min), "
+                f"scraped {last_item_count} items (at {item_speed} items/min), "
+                f"queue size {self.request_queue.qsize()}.",
+            )
 
             await asyncio.sleep(heartbeat_interval)

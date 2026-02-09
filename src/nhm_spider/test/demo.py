@@ -1,4 +1,4 @@
-from nhm_spider import Item, Spider, Request, Field, CrawlerProcess
+from nhm_spider import CrawlerProcess, Field, Item, Request, Spider
 from nhm_spider.pipeline import Pipeline
 
 
@@ -18,8 +18,8 @@ class MpSpider(Spider):
         "CLEAR_COOKIE": False,
         "CONCURRENT_REQUESTS": 4,
         "DEFAULT_REQUEST_HEADER": {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/83.0.4103.97 Safari/537.36',
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/83.0.4103.97 Safari/537.36",
         },
         "ENABLED_PIPELINE": [
             # MpPipeline,
@@ -30,7 +30,7 @@ class MpSpider(Spider):
     }
 
     def __init__(self):
-        super(MpSpider, self).__init__()
+        super().__init__()
         self.start_url = "http://www.mp.cc/search"
         self.page_url = "http://www.mp.cc/search/{}"
 
@@ -51,7 +51,7 @@ class MpSpider(Spider):
         yield item
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     process = CrawlerProcess()
     process.crawl(MpSpider)
     process.start()

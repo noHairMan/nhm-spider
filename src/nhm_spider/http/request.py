@@ -6,8 +6,22 @@ from nhm_spider.http.headers import Headers
 
 
 class Request:
-    def __init__(self, url=None, callback=None, errback=None, form=None, headers=None, cookies=None,
-                 method="get", meta=None, dont_filter=False, priority=None, proxy=None, *args, **kwargs):
+    def __init__(
+        self,
+        url=None,
+        callback=None,
+        errback=None,
+        form=None,
+        headers=None,
+        cookies=None,
+        method="get",
+        meta=None,
+        dont_filter=False,
+        priority=None,
+        proxy=None,
+        *args,
+        **kwargs,
+    ):
         self.method: str = method
         self.url: str = url
         self.callback: callable = callback
@@ -25,7 +39,9 @@ class Request:
         if method.lower() == "get":
             self.body = url.split("?", 1)[-1] if "?" in url else ""
         elif method.lower() == "post":
-            self.body = "&".join(map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0])))
+            self.body = "&".join(
+                map(lambda _: "=".join(_), sorted(form.items(), key=lambda x: x[0])),
+            )
         else:
             self.body = ""
         self.body = self.body.encode()
@@ -43,8 +59,34 @@ class Request:
 
 
 class FormRequest(Request):
-    def __init__(self, url=None, callback=None, errback=None, form=None, headers=None, cookies=None, meta=None,
-                 dont_filter=False, priority=None, proxy=None, *args, **kwargs):
+    def __init__(
+        self,
+        url=None,
+        callback=None,
+        errback=None,
+        form=None,
+        headers=None,
+        cookies=None,
+        meta=None,
+        dont_filter=False,
+        priority=None,
+        proxy=None,
+        *args,
+        **kwargs,
+    ):
         self.method = "post"
-        super(FormRequest, self).__init__(url, callback, errback, form, headers, cookies, self.method, meta,
-                                          dont_filter, priority, proxy, *args, **kwargs)
+        super().__init__(
+            url,
+            callback,
+            errback,
+            form,
+            headers,
+            cookies,
+            self.method,
+            meta,
+            dont_filter,
+            priority,
+            proxy,
+            *args,
+            **kwargs,
+        )

@@ -13,6 +13,7 @@ def time_limit(seconds: (int, float) = 0, display=False):
     :param display: 是否打印日志
     :param seconds: 控制方法执行的最短时间，在此时间之前完成，强行等待
     """
+
     def outer(func):
         def wrap(*args, **kwargs):
             start_time = time.time()
@@ -24,7 +25,9 @@ def time_limit(seconds: (int, float) = 0, display=False):
             if seconds and cost_time < seconds:
                 time.sleep(seconds - cost_time)
             return r
+
         return wrap
+
     return outer
 
 
@@ -36,6 +39,7 @@ def async_time_limit(seconds: (int, float) = 0, display=False, timeout=None):
     :param display: 是否打印日志
     :param seconds: 控制方法执行的最短时间，在此时间之前完成，强行等待
     """
+
     def outer(func):
         async def wrap(*args, **kwargs):
             start_time = time.time()
@@ -50,5 +54,7 @@ def async_time_limit(seconds: (int, float) = 0, display=False, timeout=None):
             if seconds and cost_time < seconds:
                 await asyncio.sleep(seconds - cost_time)
             return r
+
         return wrap
+
     return outer

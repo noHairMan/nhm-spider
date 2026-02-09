@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
 """
-    下载中间件接口类
-    
-    @Time : 2022/4/19 15:09
-    @Author : noHairMan
-    @File : interface.py
-    @Project : nhm-spider
+下载中间件接口类
+
+@Time : 2022/4/19 15:09
+@Author : noHairMan
+@File : interface.py
+@Project : nhm-spider
 """
+
 from abc import ABC, abstractmethod
 from typing import Union
 
+from nhm_spider.exceptions import NhmException
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
-from nhm_spider.exceptions import NhmException
 from nhm_spider.spider.base import SpiderAbc
 
 
@@ -29,7 +29,11 @@ class DownloadMiddlewareAbc(ABC):
         """
 
     @abstractmethod
-    def process_request(self, request: Request, spider: SpiderAbc) -> Union[Request, Response, None]:
+    def process_request(
+        self,
+        request: Request,
+        spider: SpiderAbc,
+    ) -> Union[Request, Response, None]:
         """
         请求发送前的拦截器，可以在此添加对request的处理
 
@@ -46,8 +50,12 @@ class DownloadMiddlewareAbc(ABC):
         """
 
     @abstractmethod
-    def process_response(self, request: Request, response: Response, spider: SpiderAbc) -> \
-            Union[Request, Response, None]:
+    def process_response(
+        self,
+        request: Request,
+        response: Response,
+        spider: SpiderAbc,
+    ) -> Union[Request, Response, None]:
         """
         请求返回后的拦截器，可以在此添加对response的处理
 
@@ -66,8 +74,12 @@ class DownloadMiddlewareAbc(ABC):
         """
 
     @abstractmethod
-    def process_exception(self, request: Request, exception: NhmException, spider: SpiderAbc) -> \
-            Union[Request, Response, NhmException, None]:
+    def process_exception(
+        self,
+        request: Request,
+        exception: NhmException,
+        spider: SpiderAbc,
+    ) -> Union[Request, Response, NhmException, None]:
         """
         下载异常的拦截器，可以在此添加对exception的处理
 

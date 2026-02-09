@@ -4,8 +4,8 @@ import aiohttp
 from aiohttp import ClientTimeout
 from aiohttp_socks import ProxyConnector
 
-from nhm_spider.http.response import Response
 from nhm_spider.common.log import get_logger
+from nhm_spider.http.response import Response
 
 
 class Downloader:
@@ -84,17 +84,32 @@ class Downloader:
             text = await response.text()  # TimeoutError
         except Exception as exception:
             return exception
-        my_response = Response(request.url, request, text, response, response.status, response.headers)
+        my_response = Response(
+            request.url,
+            request,
+            text,
+            response,
+            response.status,
+            response.headers,
+        )
         return my_response
 
     async def send(self, session: aiohttp.ClientSession, request):
-        """ 处理不同method的请求参数 """
+        """处理不同method的请求参数"""
         if request.method.lower() == "get":
-            response = await session.get(request.url, data=request.body, headers=request.headers,
-                                         cookies=request.cookies)
+            response = await session.get(
+                request.url,
+                data=request.body,
+                headers=request.headers,
+                cookies=request.cookies,
+            )
         elif request.method.lower() == "post":
-            response = await session.post(request.url, data=request.form, headers=request.headers,
-                                          cookies=request.cookies)
+            response = await session.post(
+                request.url,
+                data=request.form,
+                headers=request.headers,
+                cookies=request.cookies,
+            )
         else:
             self.logger.error("传入不支持的方法。")
             response = None

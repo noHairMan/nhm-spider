@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 """
-    爬虫类接口
-    
-    @Time : 2022/4/19 15:18
-    @Author : noHairMan
-    @File : interface.py
-    @Project : nhm-spider
+爬虫类接口
+
+@Time : 2022/4/19 15:18
+@Author : noHairMan
+@File : interface.py
+@Project : nhm-spider
 """
+
 from abc import ABC, abstractmethod
-from typing import Union, Generator, AsyncGenerator, List, Mapping
+from typing import AsyncGenerator, Generator, List, Mapping, Union
 
 from nhm_spider.crawler import Crawler
 from nhm_spider.http.request import Request
@@ -24,8 +24,12 @@ class SpiderAbc(ABC):
     custom_settings: Mapping
 
     @abstractmethod
-    def start_request(self) -> Union[Generator[Union[Request, Item], None, None],
-                                     AsyncGenerator[Union[Request, Item], None]]:
+    def start_request(
+        self,
+    ) -> Union[
+        Generator[Union[Request, Item], None, None],
+        AsyncGenerator[Union[Request, Item], None],
+    ]:
         """
         启动爬虫任务的方法，需添加启动任务到此处
 
@@ -35,8 +39,12 @@ class SpiderAbc(ABC):
         """
 
     @abstractmethod
-    def parse(self) -> Union[Generator[Union[Request, Item], None, None],
-                             AsyncGenerator[Union[Request, Item], None]]:
+    def parse(
+        self,
+    ) -> Union[
+        Generator[Union[Request, Item], None, None],
+        AsyncGenerator[Union[Request, Item], None],
+    ]:
         """
         start_urls里的方法的回调，处理方法。
 

@@ -10,9 +10,7 @@ CLEAR_COOKIE = False
 # 并发数量，即启动的任务数量
 CONCURRENT_REQUESTS = 8
 # 默认请求头
-DEFAULT_REQUEST_HEADER = {
-    'User-Agent': f'nhm-spider/{VERSION}'
-}
+DEFAULT_REQUEST_HEADER = {"User-Agent": f"nhm-spider/{VERSION}"}
 # 是否开启调试日志
 DEBUG = True
 # 日志输出等级

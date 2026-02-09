@@ -16,5 +16,5 @@ def date_to_timestamp(date_string, format_string="%Y-%m-%d %H:%M:%S"):
     return int(time.mktime(time.strptime(date_string, format_string)))
 
 
-def get_date(format_string='%Y-%m-%d'):
+def get_date(format_string="%Y-%m-%d"):
     return datetime.now().strftime(format_string)

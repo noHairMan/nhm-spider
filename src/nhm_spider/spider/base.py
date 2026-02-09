@@ -1,11 +1,12 @@
 """
-    爬虫基类
+爬虫基类
 
-    @Time : 2022/4/19 15:09
-    @Author : noHairMan
-    @File : base.py
-    @Project : nhm-spider
+@Time : 2022/4/19 15:09
+@Author : noHairMan
+@File : base.py
+@Project : nhm-spider
 """
+
 from nhm_spider.common.log import get_logger
 from nhm_spider.http.request import Request
 from nhm_spider.settings.settings_manager import SettingsManager

@@ -5,6 +5,7 @@ class SettingsManager(dict):
     """
     配置管理
     """
+
     def get_integer(self, key, default=None):
         try:
             return int(self.get(key, default or 0))
@@ -42,13 +43,13 @@ class SettingsManager(dict):
             raise SettingsTypeError(key, self[key], list)
 
     def __or__(self, other):
-        return SettingsManager(super(SettingsManager, self).__or__(other))
+        return SettingsManager(super().__or__(other))
 
     def __ior__(self, other):
-        return super(SettingsManager, self).__ior__(other)
+        return super().__ior__(other)
 
     def __str__(self):
         return f"<{self.__class__.__name__} {super().__str__()}>"
-    
+
     def update(self, __m, **kwargs) -> None:
-        return super(SettingsManager, self).update(__m)
+        return super().update(__m)

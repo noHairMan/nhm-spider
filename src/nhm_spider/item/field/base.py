@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
-    model层基类
-    
-    @Time : 2022/7/8 16:18
-    @Author : noHairMan
-    @File : base.py
-    @Project : nhm-spider
+model层基类
+
+@Time : 2022/7/8 16:18
+@Author : noHairMan
+@File : base.py
+@Project : nhm-spider
 """
 
 

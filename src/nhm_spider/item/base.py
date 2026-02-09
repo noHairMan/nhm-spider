@@ -16,12 +16,16 @@ class Item:
         if fields:
             for field in fields:
                 if field not in self.__meta:
-                    raise AttributeError(f"Class {self.__class__.__name__} not exists field [{field}].")
+                    raise AttributeError(
+                        f"Class {self.__class__.__name__} not exists field [{field}].",
+                    )
                 self.__values[field] = fields[field]
 
         for field in kwargs:
             if field not in self.__meta:
-                raise AttributeError(f"Class {self.__class__.__name__} not exists field [{field}].")
+                raise AttributeError(
+                    f"Class {self.__class__.__name__} not exists field [{field}].",
+                )
             self.__values[field] = kwargs[field]
 
     def __setitem__(self, key, value):
@@ -37,7 +41,9 @@ class Item:
 
     def __setattr__(self, key, value):
         if key in self.__meta:
-            raise AttributeError(f"Class {self.__class__.__name__} field {key} not enable rewrite.")
+            raise AttributeError(
+                f"Class {self.__class__.__name__} field {key} not enable rewrite.",
+            )
         super().__setattr__(key, value)
 
     def __iter__(self):

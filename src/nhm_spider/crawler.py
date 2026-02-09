@@ -1,25 +1,25 @@
-# -*- coding: utf-8 -*-
 """
-    爬行者
-    
-    @Time : 2022/2/23 15:58
-    @Author : noHairMan
-    @File : crawler.py
-    @Project : nhm-spider
+爬行者
+
+@Time : 2022/2/23 15:58
+@Author : noHairMan
+@File : crawler.py
+@Project : nhm-spider
 """
+
 import asyncio
 import time
-from asyncio import Semaphore, Future, wait_for
+from asyncio import Future, Semaphore, wait_for
 from asyncio.exceptions import TimeoutError
 from inspect import isawaitable, iscoroutine
 from traceback import format_exc
-from types import GeneratorType, AsyncGeneratorType
+from types import AsyncGeneratorType, GeneratorType
 
 from nhm_spider.common.log import get_logger
 from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.downloader import Downloader
 from nhm_spider.core.scheduler import Scheduler
-from nhm_spider.exceptions import NoCrawlerError, ExceptionEnum, NhmException, StopEngine
+from nhm_spider.exceptions import ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
 from nhm_spider.item.base import Item
@@ -35,12 +35,17 @@ class Crawler:
         self.downloader = Downloader(self.spider)
         self.scheduler = Scheduler(self.spider)
 
-        self.concurrent_requests: int = self.spider.settings.get_int("CONCURRENT_REQUESTS", 8)
+        self.concurrent_requests: int = self.spider.settings.get_int(
+            "CONCURRENT_REQUESTS",
+            8,
+        )
         # pipeline
         enabled_pipeline = self.spider.settings.get_list("ENABLED_PIPELINE")
         self.enabled_pipeline = [cls() for cls in enabled_pipeline]
         # download middleware
-        enabled_download_middleware = self.spider.settings.get_list("ENABLED_DOWNLOAD_MIDDLEWARE")
+        enabled_download_middleware = self.spider.settings.get_list(
+            "ENABLED_DOWNLOAD_MIDDLEWARE",
+        )
         self.enabled_download_middleware = [cls() for cls in enabled_download_middleware]
         # spider middleware
         # enabled_spider_middleware = settings.get_list("ENABLED_SPIDER_MIDDLEWARE")
@@ -342,7 +347,7 @@ class CrawlerProcess(CrawlerRunner):
             # 只有一个爬虫任务，在主进程中运行
             crawler: Crawler = self.crawlers[0]
             # 是否循环运行爬虫
-            crawler.run_forever() if crawler.spider.settings.get_bool("RUN_FOREVER") else crawler.run()
+            (crawler.run_forever() if crawler.spider.settings.get_bool("RUN_FOREVER") else crawler.run())
         else:
             # todo: 使用多进程，每个进程运行单个爬虫
             pass

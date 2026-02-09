@@ -4,7 +4,15 @@ from parsel import Selector
 
 
 class Response:
-    def __init__(self, url=None, request=None, text=None, response=None, status=None, headers=None):
+    def __init__(
+        self,
+        url=None,
+        request=None,
+        text=None,
+        response=None,
+        status=None,
+        headers=None,
+    ):
         self.url = url
         self.request = request
         self.text = text
