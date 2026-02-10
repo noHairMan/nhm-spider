@@ -16,8 +16,8 @@ from traceback import format_exc
 from types import AsyncGeneratorType, GeneratorType
 
 from nhm_spider.common.log import get_logger
+from nhm_spider.common.module_loading import import_string
 from nhm_spider.common.time_counter import time_limit
-from nhm_spider.core.downloader import Downloader
 from nhm_spider.core.scheduler import Scheduler
 from nhm_spider.exceptions import ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhm_spider.http.request import Request
@@ -32,7 +32,9 @@ class Crawler:
     def __init__(self, spider_class):
         self.logger = get_logger("Crawler")
         self.spider = spider_class.from_crawler(crawler=self)
-        self.downloader = Downloader(self.spider)
+
+        downloader_class = self.spider.settings.get_string("DEFAULT_DOWNLOADER_CLASS")
+        self.downloader = import_string(downloader_class)(self.spider)
         self.scheduler = Scheduler(self.spider)
 
         self.concurrent_requests: int = self.spider.settings.get_int(
@@ -160,6 +162,7 @@ class Crawler:
         finally:
             await self._close_crawler()
 
+            await self.downloader.close_downloader()
             # 所有task完成后，取消任务，退出程序
             for task in tasks:
                 task.cancel()

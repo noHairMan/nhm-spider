@@ -35,3 +35,5 @@ RUN_FOREVER = False
 # 每次采集完等待间隔开始下一轮
 # 默认：1天
 RUN_LOOP_INTERVAL = 60 * 60 * 24
+# 默认下载器
+DEFAULT_DOWNLOADER_CLASS = "nhm_spider.core.downloader.AiohttpDownloader"
