@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from aiohttp import ClientTimeout
-
 from nhm_spider import Spider
-from nhm_spider.common.log import get_logger
 from nhm_spider.http import Request, Response
+from nhm_spider.utils.log import get_logger
 
 
 class BaseDownloader(ABC):

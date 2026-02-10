@@ -1,6 +1,6 @@
-from nhm_spider.common.log import get_logger
 from nhm_spider.download_middleware.base import DownloadMiddleware
 from nhm_spider.http.response import Response
+from nhm_spider.utils.log import get_logger
 
 
 class RetryDownloadMiddleware(DownloadMiddleware):

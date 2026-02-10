@@ -1,6 +1,6 @@
 from asyncio import PriorityQueue
 
-from nhm_spider.common.log import get_logger
+from nhm_spider.utils.log import get_logger
 
 
 class SpiderPriorityQueue(PriorityQueue):

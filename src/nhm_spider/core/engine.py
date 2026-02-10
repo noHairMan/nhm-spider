@@ -1,11 +1,11 @@
 import asyncio
 import time
 
-from nhm_spider.common.log import get_logger
-from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.downloader import Downloader
 from nhm_spider.core.scheduler import Scheduler
 from nhm_spider.exceptions import SettingsError
+from nhm_spider.utils.log import get_logger
+from nhm_spider.utils.time_counter import time_limit
 
 
 class Engine:

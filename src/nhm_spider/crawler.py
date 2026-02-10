@@ -15,16 +15,16 @@ from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import AsyncGeneratorType, GeneratorType
 
-from nhm_spider.common.log import get_logger
-from nhm_spider.common.module_loading import import_string
-from nhm_spider.common.time_counter import time_limit
 from nhm_spider.core.scheduler import Scheduler
 from nhm_spider.exceptions import ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
 from nhm_spider.item.base import Item
+from nhm_spider.utils.log import get_logger
+from nhm_spider.utils.module_loading import import_string
 from nhm_spider.utils.request import request_fingerprint
 from nhm_spider.utils.signal import SignalManager
+from nhm_spider.utils.time_counter import time_limit
 
 
 class Crawler:
