@@ -61,15 +61,14 @@ class Crawler:
         self.__STOP_FLAG = True
 
     @time_limit(display=True)
-    def run(self):
+    async def run(self):
         self.init_status()
-        asyncio.run(self.crawl())
+        await self.crawl()
 
-    def run_forever(self):
-        RUN_LOOP_INTERVAL = self.spider.settings.get_integer("RUN_LOOP_INTERVAL")
+    async def run_forever(self):
         while 1:
-            self.run()
-            time.sleep(RUN_LOOP_INTERVAL)
+            await self.run()
+            await asyncio.sleep(self.spider.settings.get_integer("RUN_LOOP_INTERVAL"))
 
     async def _open_crawler(self):
         """
@@ -84,20 +83,22 @@ class Crawler:
 
         # init pipeline
         for pipeline in self.enabled_pipeline:
-            pip = pipeline.open_spider(self.spider)
-            if isawaitable(pip):
-                await pip
+            pipe = pipeline.open_spider(self.spider)
+            if isawaitable(pipe):
+                await pipe
 
         # init download middleware
         for middleware in self.enabled_download_middleware:
-            mid = middleware.open_spider(self.spider)
-            if isawaitable(mid):
-                await mid
+            middle = middleware.open_spider(self.spider)
+            if isawaitable(middle):
+                await middle
 
     async def _close_crawler(self):
         """
         退出crawler的准备操作
         """
+        await self.downloader.close_downloader()
+
         # clear pipeline
         for pipeline in self.enabled_pipeline:
             pip = pipeline.close_spider(self.spider)
@@ -162,7 +163,6 @@ class Crawler:
         finally:
             await self._close_crawler()
 
-            await self.downloader.close_downloader()
             # 所有task完成后，取消任务，退出程序
             for task in tasks:
                 task.cancel()
@@ -253,7 +253,6 @@ class Crawler:
         try:
             await self.process_results(results, response)
         except Exception as exc:
-            # 在 Spider 中主动停止 Engine
             if isinstance(exc, StopEngine):
                 self.stop()
             self.logger.error(format_exc())
@@ -350,7 +349,11 @@ class CrawlerProcess(CrawlerRunner):
             # 只有一个爬虫任务，在主进程中运行
             crawler: Crawler = self.crawlers[0]
             # 是否循环运行爬虫
-            (crawler.run_forever() if crawler.spider.settings.get_bool("RUN_FOREVER") else crawler.run())
+            if crawler.spider.settings.get_bool("RUN_FOREVER"):
+                asyncio.run(crawler.run_forever())
+            else:
+                asyncio.run(crawler.run())
+
         else:
             # todo: 使用多进程，每个进程运行单个爬虫
             pass

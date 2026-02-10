@@ -47,7 +47,9 @@ class AiohttpDownloader(BaseDownloader):
             await session.close()
 
     async def close_downloader(self):
-        for session in self.sessions.values():
+        await super().close_downloader()
+        for key in tuple(self.sessions.keys()):
+            session = self.sessions.pop(key)
             if isinstance(session, ClientSession):
                 await session.close()
 

@@ -6,50 +6,42 @@ from nhm_spider.utils.log import get_logger
 logger = get_logger("TimeCounter")
 
 
-def time_limit(seconds: (int, float) = 0, display=False):
+def time_limit(seconds: int | float = 0, display: bool = False, timeout: bool = None):
     """
-    装饰器
-    统计使用时间
-    :param display: 是否打印日志
-    :param seconds: 控制方法执行的最短时间，在此时间之前完成，强行等待
-    """
+    限制异步或同步函数的执行时长的装饰器，支持延迟显示。
 
-    def outer(func):
-        def wrap(*args, **kwargs):
-            start_time = time.time()
-            r = func(*args, **kwargs)
-            end_time = time.time()
-            cost_time = end_time - start_time
-            if display is True:
-                logger.info(f"[{func.__name__}] cost time {cost_time}")
-            if seconds and cost_time < seconds:
-                time.sleep(seconds - cost_time)
-            return r
+    该装饰器可以设置最大运行时间和函数运行完成后的等待时间。
+    如函数执行时间少于指定时长，装饰器会自动延迟以补足时间。
+    支持异步函数和同步函数的使用。
 
-        return wrap
+    Args:
+        seconds (int | float): 函数运行所需的最小时间。如果函数运行时间少于此值，
+            将自动延迟补足，缺省值为0。
+        display (bool): 是否显示函数的运行时间日志。缺省值为False。
+        timeout (bool | None): 最大超时时间。若为None，则不做超时限制；
+            若设置超时时长，则超出时将引发asyncio超时相关的错误。
+            缺省值为None。
 
-    return outer
-
-
-def async_time_limit(seconds: (int, float) = 0, display=False, timeout=None):
-    """
-    装饰器
-    统计使用时间
-    :param timeout: 协程对象超时时间
-    :param display: 是否打印日志
-    :param seconds: 控制方法执行的最短时间，在此时间之前完成，强行等待
+    Returns:
+        Callable: 返回一个可用于装饰函数的装饰器。
     """
 
     def outer(func):
         async def wrap(*args, **kwargs):
             start_time = time.time()
-            if timeout is None:
-                r = await func(*args, **kwargs)
+            if asyncio.iscoroutinefunction(func):
+                if timeout is None:
+                    r = await func(*args, **kwargs)
+                else:
+                    r = await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
             else:
-                r = await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
+                if timeout is None:
+                    r = await asyncio.to_thread(func, *args, **kwargs)
+                else:
+                    r = await asyncio.wait_for(asyncio.to_thread(func, *args, **kwargs), timeout=timeout)
             end_time = time.time()
             cost_time = end_time - start_time
-            if display is True:
+            if display:
                 logger.info(f"[{func.__name__}] cost time {cost_time}")
             if seconds and cost_time < seconds:
                 await asyncio.sleep(seconds - cost_time)

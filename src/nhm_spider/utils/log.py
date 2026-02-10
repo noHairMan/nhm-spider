@@ -1,3 +1,4 @@
+import logging
 from logging import INFO, Formatter, Logger, StreamHandler
 from typing import Union
 
@@ -17,13 +18,19 @@ class LoggerManager:
         hash_code = cls.hash(name, log_level)
         if hash_code in cls.__instance:
             return cls.__instance[hash_code]
-        formatter_option = f"%(asctime)s [%(name)s] %(levelname)s: %(message)s"
-        logger_formatter = Formatter(formatter_option)
-        handler = StreamHandler()
-        handler.setFormatter(logger_formatter)
-        handler.setLevel(log_level or INFO)
-        _logger = Logger(name)
-        _logger.addHandler(handler)
+
+        # 使用标准 logging.getLogger() 替代自定义 Logger
+        _logger = logging.getLogger(name)
+
+        # 避免重复添加处理器
+        if not _logger.handlers:
+            formatter_option = f"%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+            logger_formatter = Formatter(formatter_option)
+            handler = StreamHandler()
+            handler.setFormatter(logger_formatter)
+            handler.setLevel(log_level or INFO)
+            _logger.addHandler(handler)
+
         _logger.setLevel(log_level or INFO)
         cls.__instance[hash_code] = _logger
         return _logger
