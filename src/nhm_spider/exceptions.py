@@ -46,3 +46,8 @@ class NoCrawlerError(NhmException):
     """
     没有添加的爬虫任务
     """
+
+
+class ClassTypeError(NhmException):
+    def __str__(self):
+        return "未继承基类的class"

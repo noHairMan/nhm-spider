@@ -1,1 +1,1 @@
-from .aiohttpdownloader import AiohttpDownloader
+from .aiohttp_downloader import AiohttpDownloader

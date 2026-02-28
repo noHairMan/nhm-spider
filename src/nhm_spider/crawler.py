@@ -8,7 +8,6 @@
 """
 
 import asyncio
-import time
 from asyncio import Future, Semaphore, wait_for
 from asyncio.exceptions import TimeoutError
 from inspect import isawaitable, iscoroutine
@@ -16,7 +15,7 @@ from traceback import format_exc
 from types import AsyncGeneratorType, GeneratorType
 
 from nhm_spider.core.scheduler import Scheduler
-from nhm_spider.exceptions import ExceptionEnum, NhmException, NoCrawlerError, StopEngine
+from nhm_spider.exceptions import ClassTypeError, ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
 from nhm_spider.item.base import Item
@@ -28,13 +27,15 @@ from nhm_spider.utils.time_counter import time_limit
 
 
 class Crawler:
-
     def __init__(self, spider_class):
         self.logger = get_logger("Crawler")
         self.spider = spider_class.from_crawler(crawler=self)
 
-        downloader_class = self.spider.settings.get_string("DEFAULT_DOWNLOADER_CLASS")
-        self.downloader = import_string(downloader_class)(self.spider)
+        downloader_class = import_string(self.spider.settings.get_string("DEFAULT_DOWNLOADER_CLASS"))
+        base_downloader_class = import_string("nhm_spider.core.downloader.base.BaseDownloader")
+        if not issubclass(downloader_class, base_downloader_class):
+            raise ClassTypeError
+        self.downloader = downloader_class(self.spider)
         self.scheduler = Scheduler(self.spider)
 
         self.concurrent_requests: int = self.spider.settings.get_int(
