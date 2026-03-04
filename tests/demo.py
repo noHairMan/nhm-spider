@@ -1,9 +1,10 @@
-from nhm_spider import CrawlerProcess, Field, Item, Request, Spider
+from nhm_spider import CrawlerProcess, Item, Request, Spider
+from nhm_spider.item.field.base import IntegerField
 from nhm_spider.pipeline import Pipeline
 
 
 class MpItem(Item):
-    page = Field()
+    page = IntegerField()
 
 
 class MpPipeline(Pipeline):

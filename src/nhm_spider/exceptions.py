@@ -51,3 +51,7 @@ class NoCrawlerError(NhmException):
 class ClassTypeError(NhmException):
     def __str__(self):
         return "未继承基类的class"
+
+
+class ValidationError(NhmException):
+    pass
