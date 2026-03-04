@@ -30,7 +30,7 @@ class BaseItem(metaclass=ItemMeta):
                 setattr(self, field, fields[field])
 
         for field in kwargs:
-            if field not in self.__meta:
+            if field not in self._meta:
                 raise AttributeError(
                     f"Class {self.__class__.__name__} not exists field [{field}].",
                 )
