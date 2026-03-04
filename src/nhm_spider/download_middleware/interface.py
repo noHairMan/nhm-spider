@@ -13,12 +13,12 @@ from typing import Union
 from nhm_spider.exceptions import NhmException
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
-from nhm_spider.spider.base import SpiderAbc
+from nhm_spider.spider.base import Spider
 
 
 class DownloadMiddlewareAbc(ABC):
     @abstractmethod
-    def open_spider(self, spider: SpiderAbc) -> None:
+    def open_spider(self, spider: Spider) -> None:
         """
         启动爬虫时，初始化中间件的方法
 
@@ -32,7 +32,7 @@ class DownloadMiddlewareAbc(ABC):
     def process_request(
         self,
         request: Request,
-        spider: SpiderAbc,
+        spider: Spider,
     ) -> Union[Request, Response, None]:
         """
         请求发送前的拦截器，可以在此添加对request的处理
@@ -54,7 +54,7 @@ class DownloadMiddlewareAbc(ABC):
         self,
         request: Request,
         response: Response,
-        spider: SpiderAbc,
+        spider: Spider,
     ) -> Union[Request, Response, None]:
         """
         请求返回后的拦截器，可以在此添加对response的处理
@@ -78,7 +78,7 @@ class DownloadMiddlewareAbc(ABC):
         self,
         request: Request,
         exception: NhmException,
-        spider: SpiderAbc,
+        spider: Spider,
     ) -> Union[Request, Response, NhmException, None]:
         """
         下载异常的拦截器，可以在此添加对exception的处理
@@ -99,7 +99,7 @@ class DownloadMiddlewareAbc(ABC):
         """
 
     @abstractmethod
-    def close_spider(self, spider: SpiderAbc) -> None:
+    def close_spider(self, spider: Spider) -> None:
         """
         关闭爬虫时，退出中间件的方法
 

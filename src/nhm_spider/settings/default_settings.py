@@ -1,7 +1,3 @@
-from nhm_spider.download_middleware.default_headers import DefaultRequestHeadersDownloadMiddleware
-from nhm_spider.download_middleware.retry import RetryDownloadMiddleware
-from nhm_spider.download_middleware.timeout import TimeoutDownloadMiddleware
-
 VERSION = "3.1.0"
 # 是否使用session
 USE_SESSION = True
@@ -24,12 +20,14 @@ ENABLED_PIPELINE = [
 ]
 # 默认开启的中间件
 ENABLED_DOWNLOAD_MIDDLEWARE = [
-    DefaultRequestHeadersDownloadMiddleware,
-    RetryDownloadMiddleware,
-    TimeoutDownloadMiddleware,
+    "nhm_spider.download_middleware.default_headers.DefaultRequestHeadersDownloadMiddleware",
+    "nhm_spider.download_middleware.retry.RetryDownloadMiddleware",
+    "nhm_spider.download_middleware.timeout.TimeoutDownloadMiddleware",
 ]
 # 忽略的状态码错误
 IGNORE_HTTP_ERROR = []
+# 允许的成功的请求状态码
+SUCCESS_HTTP_CODE = [200]
 # 是否循环执行爬虫
 RUN_FOREVER = False
 # 每次采集完等待间隔开始下一轮

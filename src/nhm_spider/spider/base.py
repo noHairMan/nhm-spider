@@ -9,19 +9,25 @@
 
 from nhm_spider.http.request import Request
 from nhm_spider.settings.settings_manager import SettingsManager
-from nhm_spider.spider.interface import SpiderAbc
+from nhm_spider.spider.interface import BaseSpider
 from nhm_spider.utils.log import get_logger
 from nhm_spider.utils.project import get_default_settings
 
 
-class Spider(SpiderAbc):
+class Spider(BaseSpider):
     name = "Spider"
     start_urls = []
     custom_settings = {}
 
+    _settings: SettingsManager
+
     def __init__(self, *args, **kwargs):
         self.logger = get_logger(self.__class__.__name__)
         self.logger.info(f"{self.__class__.__name__} start.")
+
+    @property
+    def settings(self):
+        return self._settings
 
     @classmethod
     def from_crawler(cls, crawler=None, *args, **kwargs):
@@ -37,7 +43,7 @@ class Spider(SpiderAbc):
         self.crawler = crawler
         # 获取 default_settings
         default_settings = get_default_settings()
-        self.settings = SettingsManager(default_settings) | self.custom_settings
+        self._settings = SettingsManager(default_settings) | self.custom_settings
         self.DEBUG = self.settings.get_bool("DEBUG")
 
     async def custom_init(self): ...

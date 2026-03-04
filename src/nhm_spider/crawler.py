@@ -45,11 +45,12 @@ class Crawler:
         # pipeline
         enabled_pipeline = self.spider.settings.get_list("ENABLED_PIPELINE")
         self.enabled_pipeline = [cls() for cls in enabled_pipeline]
+
         # download middleware
-        enabled_download_middleware = self.spider.settings.get_list(
-            "ENABLED_DOWNLOAD_MIDDLEWARE",
-        )
-        self.enabled_download_middleware = [cls() for cls in enabled_download_middleware]
+        self.enabled_download_middleware = []
+        for middleware_class_string in self.spider.settings.get_list("ENABLED_DOWNLOAD_MIDDLEWARE"):
+            self.enabled_download_middleware.append(import_string(middleware_class_string)())
+
         # spider middleware
         # enabled_spider_middleware = settings.get_list("ENABLED_SPIDER_MIDDLEWARE")
         # self.enabled_spider_middleware = [cls() for cls in enabled_spider_middleware]
@@ -290,6 +291,8 @@ class Crawler:
         # process_response
         if isinstance(response, Response):
             for middleware in self.enabled_download_middleware:
+                if response is None:
+                    break
                 result = middleware.process_response(request, response, self.spider)
                 if isawaitable(result):
                     result = await result
@@ -298,10 +301,11 @@ class Crawler:
                     return await self.process_results(result)
                 elif isinstance(result, Response):
                     response = result
-                    break
                 elif result is not None:
                     self.logger.error(f"未知的对象类型: {result}。")
                     raise TypeError("未知的对象类型")
+                else:
+                    response = None
         elif isinstance(response, Exception):
             for middleware in self.enabled_download_middleware:
                 result = middleware.process_exception(request, response, self.spider)

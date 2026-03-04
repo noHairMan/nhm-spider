@@ -15,7 +15,7 @@ from nhm_spider.http.request import Request
 from nhm_spider.item.base import Item
 
 
-class SpiderAbc(ABC):
+class BaseSpider(ABC):
     # 爬虫类的名称，spider类的logger会使用此名称创建
     name: str
     # 启动爬虫的初始链接，该数组中的链接会以get方式发送请求。

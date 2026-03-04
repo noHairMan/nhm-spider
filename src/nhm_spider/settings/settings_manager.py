@@ -6,7 +6,7 @@ class SettingsManager(dict):
     配置管理
     """
 
-    def get_integer(self, key, default=None):
+    def get_integer(self, key, default=None) -> int:
         try:
             return int(self.get(key, default or 0))
         except TypeError:
@@ -14,13 +14,13 @@ class SettingsManager(dict):
 
     get_int = get_integer
 
-    def get_dict(self, key, default=None):
+    def get_dict(self, key, default=None) -> dict:
         try:
             return dict(self.get(key, default or {}))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
 
-    def get_boolean(self, key, default=None):
+    def get_boolean(self, key, default=None) -> bool:
         try:
             return bool(self.get(key, default or False))
         except TypeError:
@@ -28,7 +28,7 @@ class SettingsManager(dict):
 
     get_bool = get_boolean
 
-    def get_string(self, key, default=None):
+    def get_string(self, key, default=None) -> str:
         try:
             return str(self.get(key, default or ""))
         except TypeError:
@@ -36,7 +36,7 @@ class SettingsManager(dict):
 
     get_str = get_string
 
-    def get_list(self, key, default=None):
+    def get_list(self, key, default=None) -> list:
         try:
             return list(self.get(key, default or []))
         except TypeError:

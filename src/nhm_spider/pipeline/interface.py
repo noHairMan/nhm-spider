@@ -10,12 +10,12 @@
 from abc import ABC, abstractmethod
 
 from nhm_spider.item.base import Item
-from nhm_spider.spider.interface import SpiderAbc
+from nhm_spider.spider.base import Spider
 
 
 class PipelineAbc(ABC):
     @abstractmethod
-    def open_spider(self, spider: SpiderAbc) -> None:
+    def open_spider(self, spider: Spider) -> None:
         """
         启动爬虫时，初始化管道的方法
 
@@ -26,7 +26,7 @@ class PipelineAbc(ABC):
         """
 
     @abstractmethod
-    def process_item(self, item: Item, spider: SpiderAbc) -> Item:
+    def process_item(self, item: Item, spider: Spider) -> Item:
         """
         爬虫返回的item数据处理方法。
 
@@ -39,7 +39,7 @@ class PipelineAbc(ABC):
         """
 
     @abstractmethod
-    def close_spider(self, spider: SpiderAbc) -> None:
+    def close_spider(self, spider: Spider) -> None:
         """
         关闭爬虫时，退出管道的方法
 
