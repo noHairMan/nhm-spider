@@ -26,7 +26,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
                 # 处理忽略的错误状态码
                 return response
 
-            return self._retry(request, f"Response status error: {response.status}")
+            return self._retry(request, f"response status error: {response.status}")
         return response
 
     def process_exception(self, request, exception, spider):
@@ -44,11 +44,11 @@ class RetryDownloadMiddleware(DownloadMiddleware):
             request.dont_filter = True
         retry_times = request.meta.get("retry_times", 1)
         if retry_times < self.max_retry_times:
-            self.logger.info(f"[{request}] {reason}, retry {retry_times} time...")
+            self.logger.info(f"{request} {reason}, retry {retry_times} time...")
             request.meta["retry_times"] = retry_times + 1
             return request
         else:
             self.logger.warning(
-                f"[{request}] retry max {self.max_retry_times} times error.",
+                f"{request} retry max {self.max_retry_times} times error.",
             )
             return None
