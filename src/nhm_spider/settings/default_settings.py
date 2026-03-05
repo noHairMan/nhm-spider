@@ -1,4 +1,4 @@
-VERSION = "3.1.0"
+VERSION = "3.4.0"
 # 是否使用session
 USE_SESSION = True
 # 是否清理session的cookie，USE_SESSION = False时不生效
@@ -14,10 +14,7 @@ DEBUG_LEVEL = "INFO"
 # 默认请求超时时间，30秒
 REQUEST_TIMEOUT = 30
 # 默认开启的管道
-ENABLED_PIPELINE = [
-    # TmPipeline
-    # TmQueryPipeline
-]
+ENABLED_PIPELINE = []
 # 默认开启的中间件
 ENABLED_DOWNLOAD_MIDDLEWARE = [
     "nhm_spider.download_middleware.default_headers.DefaultRequestHeadersDownloadMiddleware",
