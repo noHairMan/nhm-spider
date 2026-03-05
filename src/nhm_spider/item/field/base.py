@@ -1,13 +1,9 @@
 from abc import ABC, abstractmethod
-from copy import deepcopy
 from typing import Any
 
 from nhm_spider.exceptions import ValidationError
 
 
-# todo: 待增加不同类型的字段，增加字段`类型检查`或`自动转换`功能。
-#       IntegerField, StringField, FloatField, JsonField ...
-#       再深入可考虑`长度检查`等
 class BaseField(ABC):
     def __init__(self):
         self.__value = None
@@ -25,11 +21,50 @@ class BaseField(ABC):
 
 
 class Field(BaseField):
-    def validate(self, value: Any) -> bool:
-        return True
+    def validate(self, value: Any) -> bool: ...
 
 
 class IntegerField(Field):
     def validate(self, value: Any):
         if not isinstance(value, int):
             raise ValidationError(f"The value of an {self.__class__.__name__} instance must be an integer.")
+
+
+class StringField(Field):
+    def validate(self, value: Any):
+        if not isinstance(value, str):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be a string.")
+
+
+class FloatField(Field):
+    def validate(self, value: Any):
+        if not isinstance(value, float):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be a float.")
+
+
+class BooleanField(Field):
+    def validate(self, value: Any):
+        if not isinstance(value, bool):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be a boolean.")
+
+
+class ListField(Field):
+    def validate(self, value: Any):
+        if not isinstance(value, list):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be a list.")
+
+
+class DictField(Field):
+    def validate(self, value: Any):
+        if not isinstance(value, dict):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be a dict.")
+
+
+class JsonField(Field):
+    def validate(self, value: Any):
+        import json
+
+        try:
+            json.dumps(value)
+        except (TypeError, ValueError):
+            raise ValidationError(f"The value of an {self.__class__.__name__} instance must be JSON serializable.")
