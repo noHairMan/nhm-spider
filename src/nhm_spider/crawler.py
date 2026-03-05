@@ -38,18 +38,19 @@ class Crawler:
         self.downloader = downloader_class(self.spider)
         self.scheduler = Scheduler(self.spider)
 
-        self.concurrent_requests: int = self.spider.settings.get_int(
-            "CONCURRENT_REQUESTS",
-            8,
-        )
+        self.concurrent_requests: int = self.spider.settings.get_int("CONCURRENT_REQUESTS", 8)
+
         # pipeline
-        enabled_pipeline = self.spider.settings.get_list("ENABLED_PIPELINE")
-        self.enabled_pipeline = [cls() for cls in enabled_pipeline]
+        self.enabled_pipeline = []
+        for enabled_pipeline_string in self.spider.settings.get_list("ENABLED_PIPELINE"):
+            pipeline_class = import_string(enabled_pipeline_string)
+            self.enabled_pipeline.append(pipeline_class())
 
         # download middleware
         self.enabled_download_middleware = []
         for middleware_class_string in self.spider.settings.get_list("ENABLED_DOWNLOAD_MIDDLEWARE"):
-            self.enabled_download_middleware.append(import_string(middleware_class_string)())
+            middleware_class = import_string(middleware_class_string)
+            self.enabled_download_middleware.append(middleware_class())
 
         # spider middleware
         # enabled_spider_middleware = settings.get_list("ENABLED_SPIDER_MIDDLEWARE")
