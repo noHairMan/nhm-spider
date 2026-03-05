@@ -1,12 +1,3 @@
-"""
-爬行者
-
-@Time : 2022/2/23 15:58
-@Author : noHairMan
-@File : crawler.py
-@Project : nhm-spider
-"""
-
 import asyncio
 from asyncio import Future, Semaphore, wait_for
 from asyncio.exceptions import TimeoutError

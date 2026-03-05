@@ -1,12 +1,3 @@
-"""
-爬虫类接口
-
-@Time : 2022/4/19 15:18
-@Author : noHairMan
-@File : interface.py
-@Project : nhm-spider
-"""
-
 from abc import ABC, abstractmethod
 from typing import AsyncGenerator, Generator, List, Mapping, Union
 

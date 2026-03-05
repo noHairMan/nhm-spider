@@ -1,12 +1,3 @@
-"""
-下载中间件基类
-
-@Time : 2022/4/19 13:44
-@Author : noHairMan
-@File : base.py
-@Project : nhm-spider
-"""
-
 from typing import Union
 
 from nhm_spider.download_middleware.interface import DownloadMiddlewareAbc

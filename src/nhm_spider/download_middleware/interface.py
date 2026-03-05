@@ -1,12 +1,3 @@
-"""
-下载中间件接口类
-
-@Time : 2022/4/19 15:09
-@Author : noHairMan
-@File : interface.py
-@Project : nhm-spider
-"""
-
 from abc import ABC, abstractmethod
 from typing import Union
 

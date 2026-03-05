@@ -1,12 +1,3 @@
-"""
-管道类接口
-
-@Time : 2022/4/19 15:46
-@Author : noHairMan
-@File : interface.py
-@Project : nhm-spider
-"""
-
 from abc import ABC, abstractmethod
 
 from nhm_spider.item.base import Item

@@ -1,12 +1,3 @@
-"""
-爬虫基类
-
-@Time : 2022/4/19 15:09
-@Author : noHairMan
-@File : base.py
-@Project : nhm-spider
-"""
-
 from nhm_spider.http.request import Request
 from nhm_spider.settings.settings_manager import SettingsManager
 from nhm_spider.spider.interface import BaseSpider
