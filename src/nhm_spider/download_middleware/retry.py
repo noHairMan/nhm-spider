@@ -1,3 +1,4 @@
+from nhm_spider import Request
 from nhm_spider.download_middleware.base import DownloadMiddleware
 from nhm_spider.http.response import Response
 from nhm_spider.spider.base import Spider
@@ -17,7 +18,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
         self.ignore_http_error = spider.settings.get_dict("IGNORE_HTTP_ERROR")
         self.success_http_code = spider.settings.get_list("SUCCESS_HTTP_CODE")
 
-    def process_response(self, request, response, spider):
+    def process_response(self, request: Request, response: Response, spider: Spider):
         if request.meta.get("dont_retry", False):
             return response
 
@@ -29,7 +30,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
             return self._retry(request, f"response status error: {response.status}")
         return response
 
-    def process_exception(self, request, exception, spider):
+    def process_exception(self, request: Request, exception: Exception, spider: Spider):
         # todo: 待设置指定异常重试
         # if (
         #     isinstance(exception, self.EXCEPTIONS_TO_RETRY)
@@ -38,9 +39,9 @@ class RetryDownloadMiddleware(DownloadMiddleware):
         #     return self._retry(request, exception)
         return self._retry(request, exception.__class__.__name__)
 
-    def _retry(self, request, reason):
+    def _retry(self, request: Request, reason: str):
         # todo: 待验证重试是否正确
-        if request.dont_filter is not True:
+        if request.dont_filter:
             request.dont_filter = True
         retry_times = request.meta.get("retry_times", 1)
         if retry_times < self.max_retry_times:

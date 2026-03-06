@@ -227,7 +227,7 @@ class Crawler:
         else:
             self.logger.warning(f"[yield]尚未处理的类型[{obj.__class__.__name__}]。")
 
-    async def process(self, request):
+    async def process(self, request: Request):
         response = await self.download_request(request)
         if isinstance(response, Response):
             if self.spider.DEBUG is True:
@@ -242,6 +242,8 @@ class Crawler:
         # todo: process_spider_in
         # generator or async generator
         # 并不会实际执行
+
+        # parse response
         results = request.callback(response)
         # todo: process_spider_out 非此位置
         try:
@@ -340,17 +342,22 @@ class CrawlerProcess(CrawlerRunner):
         1. 运行单个爬虫时，会在当前进程里启动爬虫
         2. 运行多个爬虫时，会使用多进程，在每个进程里启动单独的爬虫。
         """
+
         if not self.crawlers:
             raise NoCrawlerError("use method `CrawlerProcess.crawl` add spider class.")
         elif len(self.crawlers) == 1:
             # 只有一个爬虫任务，在主进程中运行
             crawler: Crawler = self.crawlers[0]
+
+            import logging.config
+
+            logging.config.dictConfig(crawler.spider.settings.get_dict("LOGGING"))
+
             # 是否循环运行爬虫
             if crawler.spider.settings.get_bool("RUN_FOREVER"):
                 asyncio.run(crawler.run_forever())
             else:
                 asyncio.run(crawler.run())
-
         else:
             # todo: 使用多进程，每个进程运行单个爬虫
             pass

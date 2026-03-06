@@ -1,4 +1,6 @@
-VERSION = "3.4.0"
+import logging
+
+VERSION = "3.4.1"
 # 是否使用session
 USE_SESSION = True
 # 是否清理session的cookie，USE_SESSION = False时不生效
@@ -32,3 +34,30 @@ RUN_FOREVER = False
 RUN_LOOP_INTERVAL = 60 * 60 * 24
 # 默认下载器
 DEFAULT_DOWNLOADER_CLASS = "nhm_spider.core.downloader.AiohttpDownloader"
+
+LOG_LEVEL = logging.getLevelName(logging.DEBUG)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[%(levelname)s] %(asctime)s.%(msecs).3d %(filename)s(%(lineno)s) > %(funcName)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "simple": {"format": "[%(levelname)s] %(asctime)s.%(msecs).3d: %(message)s", "datefmt": "%Y-%m-%d %H:%M:%S"},
+        "console": {
+            "format": "[%(levelname)s] %(asctime)s.%(msecs).3d %(name)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+}
