@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import AsyncGenerator, Generator, List, Mapping, Union
 
+from nhm_spider import Response
 from nhm_spider.crawler import Crawler
 from nhm_spider.http.request import Request
 from nhm_spider.item.base import Item
@@ -32,6 +33,7 @@ class BaseSpider(ABC):
     @abstractmethod
     def parse(
         self,
+        response: Response,
     ) -> Union[
         Generator[Union[Request, Item], None, None],
         AsyncGenerator[Union[Request, Item], None],
