@@ -196,6 +196,7 @@ class Crawler:
 
         # 处理request对象优先级，深度优先
         obj.priority = (response.request.priority - 1) if obj.priority is None and response is not None else 0
+        # todo: 指纹存入request对象内，作为一个属性存在
         # 根据指纹去重
         fp = request_fingerprint(obj)
         if obj.dont_filter is True or fp not in self.scheduler.dupe_memory_queue:

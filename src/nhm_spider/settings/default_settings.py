@@ -1,6 +1,6 @@
 import logging
 
-VERSION = "3.4.1"
+VERSION = "3.4.2"
 # 是否使用session
 USE_SESSION = True
 # 是否清理session的cookie，USE_SESSION = False时不生效

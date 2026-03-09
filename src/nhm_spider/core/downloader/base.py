@@ -30,4 +30,4 @@ class BaseDownloader(ABC):
 
     @abstractmethod
     async def send_request(self, request: Request) -> Optional[Response | Exception]:
-        raise NotImplementedError()
+        raise NotImplementedError

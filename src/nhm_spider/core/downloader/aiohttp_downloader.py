@@ -98,6 +98,5 @@ class AiohttpDownloader(BaseDownloader):
                 cookies=request.cookies,
             )
         else:
-            self.logger.error("传入不支持的方法。")
             response = None
         return response

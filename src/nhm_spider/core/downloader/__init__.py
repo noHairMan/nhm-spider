@@ -1,1 +1,2 @@
 from .aiohttp_downloader import AiohttpDownloader
+from .playwright_downloader import PlaywrightDownloader
