@@ -21,7 +21,10 @@ class PlaywrightDownloader(BaseDownloader):
         screenshot = playwright_kwargs.get("screenshot")
         try:
             async with async_playwright() as playwright:
-                async with await getattr(playwright, self.browser_type).launch() as browser:
+                launch_kwargs = {}
+                if request.proxy:
+                    launch_kwargs["proxy"] = {"server": request.proxy}
+                async with await getattr(playwright, self.browser_type).launch(**launch_kwargs) as browser:
                     browser: Browser
                     page = await browser.new_page()
                     await page.goto(request.url)
