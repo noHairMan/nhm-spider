@@ -1,5 +1,4 @@
-import json
-
+import ujson
 from parsel import Selector
 
 
@@ -25,8 +24,8 @@ class Response:
     def xpath(self, xpath_string):
         return self.__selector.xpath(xpath_string)
 
-    def json(self):
-        return json.loads(self.text)
+    def ujson(self):
+        return ujson.loads(self.text)
 
     def __str__(self):
         return f"<{self.request.method.upper()} {self.url}>"

@@ -16,6 +16,3 @@ class Spider(SpiderABC):
             yield request
 
     def parse(self, response): ...
-
-    def __del__(self):
-        self.logger.info(f"{self.__class__.__name__} closed.")

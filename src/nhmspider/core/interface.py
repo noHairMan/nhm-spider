@@ -16,6 +16,7 @@ class CrawlerABC(ABC):
 
     @time_limit(display=True)
     async def run(self):
+        self.logger.info(f"{self.spider.__class__.__name__} start.")
         await self.crawl()
 
     @abstractmethod
@@ -36,7 +37,9 @@ class SpiderABC(ABC):
 
     def __init__(self, *args, **kwargs):
         self.logger = get_logger(self.__class__.__name__)
-        self.logger.info(f"{self.__class__.__name__} start.")
+
+    def __del__(self):
+        self.logger.info(f"{self.__class__.__name__} closed.")
 
     @classmethod
     def from_crawler(cls, crawler: CrawlerABC, *args, **kwargs):
@@ -77,10 +80,11 @@ class DownloaderABC(ABC):
 
         self.clear_cookie = self.spider.settings.get_boolean("CLEAR_COOKIE")
         self.use_session = self.spider.settings.get_boolean("USE_SESSION")
+        self.headers = self.spider.settings.get_dict("DEFAULT_REQUEST_HEADER")
 
     async def open_downloader(self):
-        self.headers = self.spider.settings.get_dict("DEFAULT_REQUEST_HEADER")
         self.__opened = True
+        self.logger.info(f"Use downloader: {self.__class__}")
 
     async def close_downloader(self):
         self.__opened = False

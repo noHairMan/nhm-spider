@@ -62,9 +62,9 @@ class DictField(Field):
 
 class JsonField(Field):
     def validate(self, value: Any):
-        import json
+        import ujson
 
         try:
-            json.dumps(value)
+            ujson.dumps(value)
         except (TypeError, ValueError):
             raise ValidationError(f"The value of an {self.__class__.__name__} instance must be JSON serializable.")
