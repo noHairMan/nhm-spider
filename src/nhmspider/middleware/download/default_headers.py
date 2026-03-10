@@ -1,5 +1,5 @@
-from nhmspider.download_middleware.base import DownloadMiddleware
 from nhmspider.http import Headers
+from nhmspider.middleware.download.base import DownloadMiddleware
 
 
 class DefaultRequestHeadersDownloadMiddleware(DownloadMiddleware):

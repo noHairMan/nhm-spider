@@ -2,10 +2,6 @@ from nhmspider.exceptions import SettingsTypeError
 
 
 class SettingsManager(dict):
-    """
-    配置管理
-    """
-
     def get_integer(self, key, default=None) -> int:
         try:
             return int(self.get(key, default or 0))

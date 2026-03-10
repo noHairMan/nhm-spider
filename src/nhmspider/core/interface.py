@@ -4,7 +4,9 @@ from typing import Any, AsyncGenerator, Generator, Optional
 
 from nhmspider.http import Request, Response
 from nhmspider.item.base import Item
+from nhmspider.settings.settings_manager import SettingsManager
 from nhmspider.utils.log import get_logger
+from nhmspider.utils.project import get_default_settings
 from nhmspider.utils.time_counter import time_limit
 
 
@@ -32,15 +34,37 @@ class SpiderABC(ABC):
     # 当前spider的专用配置
     custom_settings: dict[str, Any]
 
-    @abstractmethod
-    def start_request(self) -> TypeSpiderOut: ...
-
-    @abstractmethod
-    def parse(self, response: Response) -> TypeSpiderOut: ...
+    def __init__(self, *args, **kwargs):
+        self.logger = get_logger(self.__class__.__name__)
+        self.logger.info(f"{self.__class__.__name__} start.")
 
     @classmethod
+    def from_crawler(cls, crawler: CrawlerABC, *args, **kwargs):
+        spider = cls(*args, **kwargs)
+        spider._set_crawler(crawler)
+        spider._set_spider(crawler)
+        return spider
+
+    def _set_crawler(self, crawler: CrawlerABC): ...
+
+    def _set_spider(self, crawler):
+        self.crawler = crawler
+        # 获取 default_settings
+        default_settings = get_default_settings()
+        self._settings = SettingsManager(default_settings) | self.custom_settings
+        self.DEBUG = self.settings.get_boolean("DEBUG")
+
+    @property
+    def settings(self) -> SettingsManager:
+        return self._settings
+
     @abstractmethod
-    def from_crawler(cls, crawler: CrawlerABC, *args, **kwargs): ...
+    def start_request(self) -> TypeSpiderOut:
+        raise NotImplementedError
+
+    @abstractmethod
+    def parse(self, response: Response) -> TypeSpiderOut:
+        raise NotImplementedError
 
 
 class DownloaderABC(ABC):

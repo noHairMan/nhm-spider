@@ -5,7 +5,7 @@ from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import AsyncGeneratorType, GeneratorType
 
-from nhmspider.core.interface import CrawlerABC
+from nhmspider.core.interface import CrawlerABC, SpiderABC
 from nhmspider.core.scheduler import Scheduler
 from nhmspider.exceptions import ClassTypeError, ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhmspider.http.request import Request
@@ -18,7 +18,7 @@ from nhmspider.utils.signal import SignalManager
 
 
 class Crawler(CrawlerABC):
-    def __init__(self, spider_class):
+    def __init__(self, spider_class: SpiderABC):
         self.logger = get_logger("Crawler")
         self.spider = spider_class.from_crawler(crawler=self)
 
@@ -67,7 +67,6 @@ class Crawler(CrawlerABC):
         # todo: 应尝试减少某些模块的初始化次数
         await self.scheduler.open_scheduler()
         await self.downloader.open_downloader()
-        await self.spider.custom_init()
         self.signal_manager = SignalManager(self.scheduler.request_queue)
         self.signal_manager.connect()
 
@@ -142,11 +141,6 @@ class Crawler(CrawlerABC):
                 await self.scheduler.request_queue.join()
             else:
                 self.stop()
-
-            # 正常推出时执行的关闭
-            success_close_task = self.spider.custom_success_close()
-            if isawaitable(success_close_task):
-                await success_close_task
         finally:
             await self._close_crawler()
 
@@ -155,10 +149,6 @@ class Crawler(CrawlerABC):
                 task.cancel()
             # 等待task取消完成
             await asyncio.gather(*tasks, return_exceptions=True)
-
-            spider_close_task = self.spider.custom_close()
-            if isawaitable(spider_close_task):
-                await spider_close_task
 
             # 清理内存，消除对 RUN_FOREVER = True 时的影响
             self.scheduler.dupe_memory_queue.clear()

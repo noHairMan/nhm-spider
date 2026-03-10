@@ -1,6 +1,6 @@
 from asyncio.exceptions import TimeoutError
 
-from nhmspider.download_middleware.base import DownloadMiddleware
+from nhmspider.middleware.download.base import DownloadMiddleware
 from nhmspider.utils.log import get_logger
 
 

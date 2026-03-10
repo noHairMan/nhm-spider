@@ -19,9 +19,9 @@ REQUEST_TIMEOUT = 30
 ENABLED_PIPELINE = []
 # 默认开启的中间件
 ENABLED_DOWNLOAD_MIDDLEWARE = [
-    "nhmspider.download_middleware.default_headers.DefaultRequestHeadersDownloadMiddleware",
-    "nhmspider.download_middleware.retry.RetryDownloadMiddleware",
-    "nhmspider.download_middleware.timeout.TimeoutDownloadMiddleware",
+    "nhmspider.middleware.download.default_headers.DefaultRequestHeadersDownloadMiddleware",
+    "nhmspider.middleware.download.retry.RetryDownloadMiddleware",
+    "nhmspider.middleware.download.timeout.TimeoutDownloadMiddleware",
 ]
 # 忽略的状态码错误
 IGNORE_HTTP_ERROR = []

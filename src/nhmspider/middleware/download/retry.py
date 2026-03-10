@@ -1,7 +1,7 @@
 from nhmspider import Request
 from nhmspider.core.spider import Spider
-from nhmspider.download_middleware.base import DownloadMiddleware
 from nhmspider.http.response import Response
+from nhmspider.middleware.download.base import DownloadMiddleware
 from nhmspider.utils.log import get_logger
 
 
