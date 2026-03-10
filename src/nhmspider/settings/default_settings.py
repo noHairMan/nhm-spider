@@ -35,7 +35,7 @@ RUN_LOOP_INTERVAL = 60 * 60 * 24
 # 默认下载器
 DEFAULT_DOWNLOADER_CLASS = "nhmspider.core.downloader.AiohttpDownloader"
 
-LOG_LEVEL = logging.getLevelName(logging.DEBUG)
+LOG_LEVEL = logging.getLevelName(logging.INFO)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

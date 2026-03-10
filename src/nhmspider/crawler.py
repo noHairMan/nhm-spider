@@ -214,8 +214,7 @@ class Crawler(CrawlerABC):
     async def process(self, request: Request):
         response = await self.download_request(request)
         if isinstance(response, Response):
-            if self.spider.DEBUG is True:
-                self.logger.info(f"Crawled ({response.status}) {response}.")
+            self.logger.debug(f"Crawled ({response.status}) {response}.")
         else:
             # todo: 待处理非response的情况
             # 失败的请求也要调用task_done，否则无法结束。
@@ -287,7 +286,7 @@ class Crawler(CrawlerABC):
         elif isinstance(response, Exception):
             response: Exception
             self.logger.debug("\n" + response.stack)
-            self.logger.debug(response.message)
+            self.logger.info(response.message)
             for middleware in self.enabled_download_middleware:
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):
@@ -338,7 +337,11 @@ class CrawlerProcess(CrawlerRunner):
 
             import logging.config
 
-            logging.config.dictConfig(crawler.spider.settings.get_dict("LOGGING"))
+            # 根据 DEBUG 和 DEBUG_LEVEL 动态配置日志
+            logging_config = crawler.spider.settings.get_dictionary("LOGGING")
+            if crawler.spider.DEBUG:
+                logging_config["root"]["level"] = logging.getLevelName(logging.DEBUG)
+            logging.config.dictConfig(logging_config)
 
             # 是否循环运行爬虫
             if crawler.spider.settings.get_bool("RUN_FOREVER"):
