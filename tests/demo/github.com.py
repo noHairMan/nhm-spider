@@ -14,11 +14,9 @@ class GithubSpider(Spider):
         "DEBUG": True,
         "DEFAULT_DOWNLOADER_CLASS": "nhm_spider.core.downloader.PlaywrightDownloader",
         "BROWSER_TYPE": "firefox",
+        "REQUEST_TIMEOUT": 30,
     }
     start_urls = ["https://github.com/fastfire/deepdarkCTI/blob/main/ransomware_gang.md"]
-
-    def parse(self, response: Response):
-        print(response.text)
 
 
 if __name__ == "__main__":

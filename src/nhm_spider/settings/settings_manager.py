@@ -14,11 +14,19 @@ class SettingsManager(dict):
 
     get_int = get_integer
 
-    def get_dict(self, key, default=None) -> dict:
+    def get_float(self, key, default=None) -> float:
+        try:
+            return float(self.get(key, default or 0.0))
+        except TypeError:
+            raise SettingsTypeError(key, self[key], float)
+
+    def get_dictionary(self, key, default=None) -> dict:
         try:
             return dict(self.get(key, default or {}))
         except TypeError:
             raise SettingsTypeError(key, self[key], dict)
+
+    get_dict = get_dictionary
 
     def get_boolean(self, key, default=None) -> bool:
         try:

@@ -4,7 +4,7 @@ import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp_socks import ProxyConnector
 
-from nhm_spider import Spider
+from nhm_spider import Request, Spider
 from nhm_spider.core.downloader.base import BaseDownloader
 from nhm_spider.http.response import Response
 
@@ -81,14 +81,16 @@ class AiohttpDownloader(BaseDownloader):
             response.headers,
         )
 
-    async def send(self, session: aiohttp.ClientSession, request):
+    async def send(self, session: aiohttp.ClientSession, request: Request) -> Optional[Response]:
         """处理不同method的请求参数"""
+        timeout = aiohttp.ClientTimeout(total=(request.timeout or self.timeout))
         if request.method.lower() == "get":
             response = await session.get(
                 request.url,
                 data=request.body,
                 headers=request.headers,
                 cookies=request.cookies,
+                timeout=timeout,
             )
         elif request.method.lower() == "post":
             response = await session.post(
@@ -96,6 +98,7 @@ class AiohttpDownloader(BaseDownloader):
                 data=request.form,
                 headers=request.headers,
                 cookies=request.cookies,
+                timeout=timeout,
             )
         else:
             response = None

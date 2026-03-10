@@ -27,7 +27,7 @@ class PlaywrightDownloader(BaseDownloader):
                 async with await getattr(playwright, self.browser_type).launch(**launch_kwargs) as browser:
                     browser: Browser
                     page = await browser.new_page()
-                    await page.goto(request.url)
+                    await page.goto(request.url, timeout=(request.timeout or self.timeout) * 1000)
                     text = await page.content()
                     response = Response(
                         url=page.url,
@@ -38,8 +38,7 @@ class PlaywrightDownloader(BaseDownloader):
                         headers={},
                     )
                     if screenshot is not None:
-                        await page.screenshot()
-                    response.meta["screenshot"] = screenshot
+                        response.meta["screenshot"] = await page.screenshot()
         except Exception as exception:
             return exception
         return response

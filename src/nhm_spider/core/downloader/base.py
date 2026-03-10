@@ -11,11 +11,11 @@ class BaseDownloader(ABC):
         self.logger = get_logger(self.__class__.__name__)
         self.spider = spider
         self.headers = None
-        self.timeout = self.spider.settings.get_int("REQUEST_TIMEOUT", 180)
+        self.timeout = self.spider.settings.get_float("REQUEST_TIMEOUT")
         self.__opened: bool = False
 
-        self.clear_cookie = self.spider.settings.get_bool("CLEAR_COOKIE", False)
-        self.use_session = self.spider.settings.get_bool("USE_SESSION", True)
+        self.clear_cookie = self.spider.settings.get_boolean("CLEAR_COOKIE")
+        self.use_session = self.spider.settings.get_boolean("USE_SESSION")
 
     async def open_downloader(self):
         self.headers = self.spider.settings.get_dict("DEFAULT_REQUEST_HEADER")

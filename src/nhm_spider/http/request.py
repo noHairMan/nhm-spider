@@ -19,6 +19,7 @@ class Request:
         dont_filter=False,
         priority=None,
         proxy=None,
+        timeout=None,
         *args,
         **kwargs,
     ):
@@ -45,6 +46,7 @@ class Request:
         else:
             self.body = ""
         self.body = self.body.encode()
+        self.timeout = timeout
 
     # 供优先级队列比较，比较的是Request.priority的大小
 
