@@ -37,7 +37,7 @@ class RetryDownloadMiddleware(DownloadMiddleware):
         #     and not request.meta.get('dont_retry', False)
         # ):
         #     return self._retry(request, exception)
-        return self._retry(request, exception.__class__.__name__)
+        return self._retry(request, f"{exception.__class__.__module__}.{exception.__class__.__name__}")
 
     def _retry(self, request: Request, reason: str):
         # todo: 待验证重试是否正确

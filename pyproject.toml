@@ -1,6 +1,6 @@
 [project]
 name = "nhm-spider"
-version = "3.4.4"
+version = "3.4.5"
 description = "base on asyncio, spider module like scrapy."
 readme = "README.md"
 requires-python = ">=3.10"
