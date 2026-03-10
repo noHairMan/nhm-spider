@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Union
 
+from nhm_spider.core.spider import Spider
 from nhm_spider.exceptions import NhmException
 from nhm_spider.http.request import Request
 from nhm_spider.http.response import Response
-from nhm_spider.spider.base import Spider
 
 
 class DownloadMiddlewareAbc(ABC):

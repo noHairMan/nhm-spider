@@ -1,6 +1,6 @@
 from nhm_spider import Item
+from nhm_spider.core.spider import Spider
 from nhm_spider.pipeline.interface import PipelineAbc
-from nhm_spider.spider.base import Spider
 
 
 class Pipeline(PipelineAbc):

@@ -2,11 +2,11 @@ from typing import Literal, Optional
 
 from playwright.async_api import Browser, async_playwright
 
-from nhm_spider import Request, Response
-from nhm_spider.core.downloader.base import BaseDownloader
+from nhm_spider.core.interface import DownloaderABC
+from nhm_spider.http import Request, Response
 
 
-class PlaywrightDownloader(BaseDownloader):
+class PlaywrightDownloader(DownloaderABC):
     browser_type: Literal["chromium", "firefox", "webkit"]
 
     async def open_downloader(self):

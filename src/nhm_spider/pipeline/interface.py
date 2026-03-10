@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
+from nhm_spider.core.spider import Spider
 from nhm_spider.item.base import Item
-from nhm_spider.spider.base import Spider
 
 
 class PipelineAbc(ABC):

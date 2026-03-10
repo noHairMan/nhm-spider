@@ -4,13 +4,12 @@ import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp_socks import ProxyConnector
 
-from nhm_spider import Request, Spider
-from nhm_spider.core.downloader.base import BaseDownloader
-from nhm_spider.http.response import Response
+from nhm_spider.core.interface import DownloaderABC, SpiderABC
+from nhm_spider.http import Request, Response
 
 
-class AiohttpDownloader(BaseDownloader):
-    def __init__(self, spider: Spider):
+class AiohttpDownloader(DownloaderABC):
+    def __init__(self, spider: SpiderABC):
         super().__init__(spider=spider)
         self.sessions = {}
 

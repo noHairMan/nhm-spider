@@ -5,6 +5,7 @@ from inspect import isawaitable, iscoroutine
 from traceback import format_exc
 from types import AsyncGeneratorType, GeneratorType
 
+from nhm_spider.core.interface import CrawlerABC
 from nhm_spider.core.scheduler import Scheduler
 from nhm_spider.exceptions import ClassTypeError, ExceptionEnum, NhmException, NoCrawlerError, StopEngine
 from nhm_spider.http.request import Request
@@ -14,22 +15,21 @@ from nhm_spider.utils.log import get_logger
 from nhm_spider.utils.module_loading import import_string
 from nhm_spider.utils.request import request_fingerprint
 from nhm_spider.utils.signal import SignalManager
-from nhm_spider.utils.time_counter import time_limit
 
 
-class Crawler:
+class Crawler(CrawlerABC):
     def __init__(self, spider_class):
         self.logger = get_logger("Crawler")
         self.spider = spider_class.from_crawler(crawler=self)
 
         downloader_class = import_string(self.spider.settings.get_string("DEFAULT_DOWNLOADER_CLASS"))
-        base_downloader_class = import_string("nhm_spider.core.downloader.base.BaseDownloader")
+        base_downloader_class = import_string("nhm_spider.core.interface.DownloaderABC")
         if not issubclass(downloader_class, base_downloader_class):
             raise ClassTypeError
         self.downloader = downloader_class(self.spider)
         self.scheduler = Scheduler(self.spider)
 
-        self.concurrent_requests: int = self.spider.settings.get_int("CONCURRENT_REQUESTS", 8)
+        self.concurrent_requests = self.spider.settings.get_integer("CONCURRENT_REQUESTS")
 
         # pipeline
         self.enabled_pipeline = []
@@ -54,11 +54,6 @@ class Crawler:
     def stop(self):
         self.__STOP_FLAG = True
 
-    @time_limit(display=True)
-    async def run(self):
-        self.init_status()
-        await self.crawl()
-
     async def run_forever(self):
         while 1:
             await self.run()
@@ -68,6 +63,7 @@ class Crawler:
         """
         初始化crawler
         """
+        self.init_status()
         # todo: 应尝试减少某些模块的初始化次数
         await self.scheduler.open_scheduler()
         await self.downloader.open_downloader()
@@ -106,9 +102,6 @@ class Crawler:
                 await mid
 
     async def crawl(self):
-        """
-        协程主程序
-        """
 
         def callback(future: Future):
             semaphore.release()
@@ -302,6 +295,9 @@ class Crawler:
                 else:
                     response = None
         elif isinstance(response, Exception):
+            response: Exception
+            self.logger.debug("\n" + response.stack)
+            self.logger.debug(response.message)
             for middleware in self.enabled_download_middleware:
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):

@@ -1,4 +1,4 @@
-from nhm_spider import CrawlerProcess, Response, Spider
+from nhm_spider import CrawlerProcess, Spider
 
 
 class GithubSpider(Spider):
