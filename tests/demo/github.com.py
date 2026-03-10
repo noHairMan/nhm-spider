@@ -1,4 +1,4 @@
-from nhm_spider import CrawlerProcess, Spider
+from nhmspider import CrawlerProcess, Spider
 
 
 class GithubSpider(Spider):
@@ -12,7 +12,7 @@ class GithubSpider(Spider):
             "Chrome/83.0.4103.97 Safari/537.36",
         },
         "DEBUG": True,
-        "DEFAULT_DOWNLOADER_CLASS": "nhm_spider.core.downloader.PlaywrightDownloader",
+        "DEFAULT_DOWNLOADER_CLASS": "nhmspider.core.downloader.PlaywrightDownloader",
         "BROWSER_TYPE": "firefox",
         "REQUEST_TIMEOUT": 30,
     }

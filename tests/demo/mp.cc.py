@@ -1,6 +1,6 @@
-from nhm_spider import CrawlerProcess, Item, Request, Spider
-from nhm_spider.item.field.base import IntegerField
-from nhm_spider.pipeline import Pipeline
+from nhmspider import CrawlerProcess, Item, Request, Spider
+from nhmspider.item.field.base import IntegerField
+from nhmspider.pipeline import Pipeline
 
 
 class MpItem(Item):

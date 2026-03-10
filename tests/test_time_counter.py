@@ -3,7 +3,7 @@
 import asyncio
 import time
 
-from src.nhm_spider.utils.time_counter import time_limit
+from src.nhmspider.utils.time_counter import time_limit
 
 
 def test_time_limit_synchronous_delay():
