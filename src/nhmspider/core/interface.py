@@ -78,7 +78,6 @@ class DownloaderABC(ABC):
         self.timeout = self.spider.settings.get_float("REQUEST_TIMEOUT")
         self.__opened: bool = False
 
-        self.clear_cookie = self.spider.settings.get_boolean("CLEAR_COOKIE")
         self.use_session = self.spider.settings.get_boolean("USE_SESSION")
         self.headers = self.spider.settings.get_dict("DEFAULT_REQUEST_HEADER")
 

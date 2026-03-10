@@ -1,4 +1,6 @@
+import asyncio
 from typing import Optional
+from weakref import WeakValueDictionary, finalize
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
@@ -11,35 +13,21 @@ from nhmspider.http import Request, Response
 class AiohttpDownloader(DownloaderABC):
     def __init__(self, spider: SpiderABC):
         super().__init__(spider=spider)
-        self.sessions = {}
+        self.sessions: dict[Optional[str], aiohttp.ClientSession] = {}
 
-    async def get_session(self, request=None):
+    async def get_session(self, request: Optional[Request] = None, new: bool = False) -> aiohttp.ClientSession:
         proxy = request.proxy if request and request.proxy else None
-        if (session := self.sessions.get(proxy)) is not None:
-            return session
+        if proxy not in self.sessions or new:
+            connector = ProxyConnector.from_url(request.proxy) if proxy else None
+            session = aiohttp.ClientSession(
+                connector=connector,
+                headers=self.headers,
+                timeout=ClientTimeout(self.timeout),
+            )
+            self.sessions[proxy] = session
+        return self.sessions[proxy]
 
-        async def on_request_start(session, trace_config_ctx, params):
-            # print("Starting request")
-            pass
-
-        async def on_request_end(session, trace_config_ctx, params):
-            # print("Ending request")
-            pass
-
-        trace_config = aiohttp.TraceConfig()
-        trace_config.on_request_start.append(on_request_start)
-        trace_config.on_request_end.append(on_request_end)
-
-        connector = ProxyConnector.from_url(request.proxy) if proxy else None
-        self.sessions[proxy] = aiohttp.ClientSession(
-            connector=connector,
-            headers=self.headers,
-            timeout=ClientTimeout(self.timeout),
-            trace_configs=[trace_config],
-        )
-        return await self.get_session(request)
-
-    async def remove_session(self, request):
+    async def remove_session(self, request: Optional[Request]):
         proxy = request.proxy if request and request.proxy else None
         session = self.sessions.pop(proxy, None)
         if session is not None:
@@ -54,21 +42,20 @@ class AiohttpDownloader(DownloaderABC):
 
     async def send_request(self, request) -> Optional[Response | Exception]:
         try:
-            # 是否每次创建新session请求
             if self.use_session is False:
-                session = await self.get_session(request)
-                response = await self.send(session, request)
-                await self.remove_session(request)
+                session = await self.get_session(request, new=True)
+                try:
+                    response = await self.send(session, request)
+                except:
+                    raise
+                finally:
+                    await self.remove_session(request)
             else:
                 session = await self.get_session(request)
-                # 每次请求前清除session缓存的cookies 为response set-cookie中自动缓存的
-                if self.clear_cookie is True:
-                    session.cookie_jar.clear()
                 response = await self.send(session, request)
             if response is None:
-                return
-            # 获取完text之后，会自动关闭response。
-            text = await response.text()  # TimeoutError
+                return None
+            text = await response.text()
         except Exception as exception:
             return exception
         return Response(

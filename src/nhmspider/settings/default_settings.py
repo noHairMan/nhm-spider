@@ -3,8 +3,6 @@ import logging
 VERSION = "4.0"
 # 是否使用session
 USE_SESSION = True
-# 是否清理session的cookie，USE_SESSION = False时不生效
-CLEAR_COOKIE = False
 # 并发数量，即启动的任务数量
 CONCURRENT_REQUESTS = 8
 # 默认请求头

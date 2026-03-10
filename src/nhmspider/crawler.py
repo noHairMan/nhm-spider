@@ -193,7 +193,7 @@ class Crawler(CrawlerABC):
         """
 
         if not self.enabled_pipeline and self.spider.DEBUG is True:
-            self.logger.info(obj)
+            self.logger.debug(obj)
         self.scheduler.item_count += 1
         for pipeline in self.enabled_pipeline:
             obj = pipeline.process_item(obj, self.spider)
@@ -284,9 +284,6 @@ class Crawler(CrawlerABC):
                 else:
                     response = None
         elif isinstance(response, Exception):
-            response: Exception
-            self.logger.debug("\n" + response.stack)
-            self.logger.info(response.message)
             for middleware in self.enabled_download_middleware:
                 result = middleware.process_exception(request, response, self.spider)
                 if isawaitable(result):

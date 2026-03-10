@@ -31,7 +31,7 @@ class MclarenItem(Item):
 class GithubSpider(Spider):
     name = "MpSpider"
     custom_settings = {
-        "PROXY": "socks5://10.11.35.215:9050",
+        "PROXY": "socks5://127.0.0.1:9050",
         "DEPTH_LIMIT": 1,
         "DEBUG": False,
         "DEFAULT_DOWNLOADER_CLASS": "nhmspider.core.downloader.PlaywrightDownloader",
